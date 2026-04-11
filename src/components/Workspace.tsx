@@ -1,21 +1,20 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { Toolbar } from "./Toolbar";
-import { MarkdownEditor } from "./MarkdownEditor";
-import { LivePreview } from "./LivePreview";
-import { StyleModal } from "./StyleModal";
-import { HistoryModal } from "./HistoryModal";
-import { ToastContainer } from "./Toast";
-import { markdownToSocialText } from "../utils/markdownParser";
-import { useHistory } from "../hooks/useHistory";
-import { useToast } from "../hooks/useToast";
-import "./Workspace.css";
+import React, { useState, useEffect, useMemo } from 'react';
+import { Toolbar } from './Toolbar';
+import { MarkdownEditor } from './MarkdownEditor';
+import { LivePreview } from './LivePreview';
+import { CharacterCounter } from './CharacterCounter';
+import { StyleModal } from './StyleModal';
+import { HistoryModal } from './HistoryModal';
+import { ToastContainer } from './Toast';
+import { markdownToSocialText } from '../utils/markdownParser';
+import { useHistory } from '../hooks/useHistory';
+import { useToast } from '../hooks/useToast';
+import './Workspace.css';
 
 export const Workspace: React.FC = () => {
-  const [markdown, setMarkdown] = useState<string>(
-    "# Hello LinkedIn\n\nWrite your post here...",
-  );
-  const [platform, setPlatform] = useState<string>("linkedin");
-  const [formatStyle, setFormatStyle] = useState<string>("standard");
+  const [markdown, setMarkdown] = useState<string>('# Hello LinkedIn\n\nWrite your post here...');
+  const [platform, setPlatform] = useState<string>('linkedin');
+  const [formatStyle, setFormatStyle] = useState<string>('standard');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
   const { drafts, saveDraft } = useHistory();
@@ -37,16 +36,16 @@ export const Workspace: React.FC = () => {
   const handleCopy = async () => {
     // Check if clipboard API is available
     if (!navigator.clipboard || !navigator.clipboard.writeText) {
-      addToast("Clipboard API not available in your browser", "error");
+      addToast('Clipboard API not available in your browser', 'error');
       return;
     }
 
     try {
       // Use the memoized socialPreview value instead of recalculating
       await navigator.clipboard.writeText(socialPreview);
-      addToast("Copied to clipboard! Paste into LinkedIn to see formatted content.", "success");
+      addToast('Copied to clipboard! Paste into LinkedIn to see formatted content.', 'success');
     } catch (e) {
-      addToast("Failed to copy to clipboard", "error");
+      addToast('Failed to copy to clipboard', 'error');
     }
   };
 
@@ -71,10 +70,8 @@ export const Workspace: React.FC = () => {
           <MarkdownEditor value={markdown} onChange={setMarkdown} />
         </div>
         <div className="pane right-pane">
-          <LivePreview
-            contentText={socialPreview}
-            platform={platform}
-          />
+          <LivePreview contentText={socialPreview} platform={platform} />
+          <CharacterCounter text={socialPreview} platform={platform} />
         </div>
       </div>
       <StyleModal

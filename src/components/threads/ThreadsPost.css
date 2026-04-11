@@ -1,0 +1,101 @@
+.threads-post {
+  background: #000;
+  border-radius: 0;
+  padding: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #fff;
+  border-bottom: 1px solid #262626;
+}
+
+.threads-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.threads-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.threads-avatar svg {
+  width: 24px;
+  height: 24px;
+  color: #fff;
+}
+
+.threads-user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.threads-username {
+  font-weight: 600;
+  font-size: 14px;
+  color: #f5f5f5;
+}
+
+.threads-time {
+  font-size: 14px;
+  color: #a8a8a8;
+}
+
+.threads-content {
+  margin-bottom: 16px;
+}
+
+.threads-text {
+  font-size: 15px;
+  line-height: 1.5;
+  color: #f5f5f5;
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.threads-placeholder {
+  font-size: 15px;
+  color: #a8a8a8;
+  margin: 0;
+  font-style: italic;
+}
+
+.threads-warning {
+  background: #450a0a;
+  border: 1px solid #dc2626;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #fca5a5;
+}
+
+.threads-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.threads-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  color: #a8a8a8;
+  cursor: default;
+  padding: 0;
+}
+
+.threads-action-btn svg {
+  width: 24px;
+  height: 24px;
+}

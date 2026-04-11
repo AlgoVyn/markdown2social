@@ -247,16 +247,21 @@ describe("Workspace", () => {
     it("should display current platform in select dropdown", () => {
       render(<Workspace />);
 
-      const select = screen.getByDisplayValue("LinkedIn");
+      // Look for select by its label instead of display value
+      const select = screen.getByLabelText("Social media platform");
       expect(select).toBeInTheDocument();
+      expect(select).toHaveValue("linkedin");
     });
 
     it("should maintain selected platform value", async () => {
       render(<Workspace />);
 
-      const select = screen.getByDisplayValue("LinkedIn");
-      // Since there's only LinkedIn option currently, verify it stays selected
+      const select = screen.getByLabelText("Social media platform");
       expect(select).toHaveValue("linkedin");
+      
+      // Can switch to another platform
+      await userEvent.selectOptions(select, "twitter");
+      expect(select).toHaveValue("twitter");
     });
   });
 

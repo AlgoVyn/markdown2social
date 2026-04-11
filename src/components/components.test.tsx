@@ -88,18 +88,17 @@ describe("Toolbar", () => {
   it("should display current platform in select", () => {
     render(<Toolbar {...defaultProps} />);
 
-    const select = screen.getByDisplayValue("LinkedIn");
-    expect(select).toBeInTheDocument();
+    const select = screen.getByLabelText("Social media platform");
+    expect(select).toHaveValue("linkedin");
   });
 
   it("should call setPlatform when platform is changed", async () => {
     render(<Toolbar {...defaultProps} />);
 
-    const select = screen.getByDisplayValue("LinkedIn");
-    await userEvent.selectOptions(select, "linkedin");
+    const select = screen.getByLabelText("Social media platform");
+    await userEvent.selectOptions(select, "twitter");
 
-    // Since there's only one option, this verifies the select works
-    expect(select).toHaveValue("linkedin");
+    expect(defaultProps.setPlatform).toHaveBeenCalledWith("twitter");
   });
 });
 
@@ -310,16 +309,27 @@ describe("LivePreview", () => {
     render(<LivePreview {...defaultProps} />);
 
     expect(screen.getByText("Live Preview")).toBeInTheDocument();
-    expect(screen.getByText("linkedin")).toBeInTheDocument();
+    const badge = screen.getByLabelText("Platform: LinkedIn");
+    expect(badge).toHaveClass("preview-badge");
     expect(screen.getByText("Jane Doe")).toBeInTheDocument();
   });
 
-  it("should render unsupported message for other platforms", () => {
-    render(<LivePreview {...defaultProps} platform="twitter" />);
+  it("should render Twitter/X preview for twitter platform", () => {
+    render(<LivePreview {...defaultProps} platform="twitter" contentText="Tweet content" />);
 
-    expect(
-      screen.getByText(/Preview for twitter not yet supported/),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Live Preview")).toBeInTheDocument();
+    const badge = screen.getByLabelText("Platform: Twitter/X");
+    expect(badge).toHaveClass("preview-badge");
+    expect(screen.getByText("Your Name")).toBeInTheDocument();
+  });
+
+  it("should render Bluesky preview for bluesky platform", () => {
+    render(<LivePreview {...defaultProps} platform="bluesky" contentText="Test content" />);
+
+    const badge = screen.getByLabelText("Platform: Bluesky");
+    expect(badge).toHaveClass("preview-badge");
+    expect(screen.getByText("Test content")).toBeInTheDocument();
+    expect(screen.getByText('@handle.bsky.social')).toBeInTheDocument();
   });
 
   it("should pass contentText to LinkedInPost", () => {
@@ -332,6 +342,7 @@ describe("LivePreview", () => {
     render(<LivePreview {...defaultProps} platform="linkedin" />);
 
     expect(screen.getByText("Live Preview")).toBeInTheDocument();
-    expect(screen.getByText("linkedin")).toHaveClass("preview-badge");
+    const badge = screen.getByLabelText("Platform: LinkedIn");
+    expect(badge).toHaveClass("preview-badge");
   });
 });

@@ -1,0 +1,111 @@
+.mastodon-post {
+  background: #282c37;
+  border-radius: 4px;
+  padding: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #fff;
+}
+
+.mastodon-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.mastodon-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 4px;
+  background: #6364ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mastodon-avatar svg {
+  width: 28px;
+  height: 28px;
+  color: #fff;
+}
+
+.mastodon-user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.mastodon-display-name {
+  font-weight: 700;
+  font-size: 15px;
+  color: #fff;
+}
+
+.mastodon-handle {
+  font-size: 14px;
+  color: #9baec8;
+}
+
+.mastodon-content {
+  margin-bottom: 12px;
+}
+
+.mastodon-text {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #fff;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.mastodon-placeholder {
+  font-size: 15px;
+  color: #9baec8;
+  margin: 0;
+  font-style: italic;
+}
+
+.mastodon-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 14px;
+  color: #9baec8;
+  margin-bottom: 12px;
+}
+
+.mastodon-visibility {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mastodon-visibility::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239baec8' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20'/%3E%3C/svg%3E")
+    center/contain no-repeat;
+}
+
+.mastodon-actions {
+  display: flex;
+  gap: 20px;
+  padding-top: 12px;
+  border-top: 1px solid #3a3f4c;
+}
+
+.mastodon-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: #9baec8;
+  font-size: 14px;
+  cursor: default;
+  padding: 4px;
+}
+
+.mastodon-action-btn:hover {
+  color: #6364ff;
+}

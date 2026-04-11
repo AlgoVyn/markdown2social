@@ -1,0 +1,89 @@
+.character-counter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.counter-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.counter-text {
+  font-size: 0.875rem;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.counter-text strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+.counter-separator {
+  color: #9ca3af;
+}
+
+.counter-limit {
+  color: #9ca3af;
+  font-size: 0.75rem;
+}
+
+.counter-ring {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+}
+
+.counter-ring-bg {
+  stroke: #e5e7eb;
+}
+
+.counter-ring-progress {
+  transition:
+    stroke-dashoffset 0.3s ease,
+    stroke 0.3s ease;
+}
+
+.counter-message {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+/* Status variants */
+.counter-ok .counter-text strong {
+  color: #16a34a;
+}
+
+.counter-warning {
+  background-color: #fffbeb;
+}
+
+.counter-warning .counter-text strong {
+  color: #d97706;
+}
+
+.counter-warning .counter-message {
+  color: #b45309;
+}
+
+.counter-over {
+  background-color: #fef2f2;
+}
+
+.counter-over .counter-text strong {
+  color: #dc2626;
+}
+
+.counter-over .counter-message {
+  color: #b91c1c;
+  font-weight: 500;
+}

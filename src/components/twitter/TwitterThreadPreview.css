@@ -1,0 +1,175 @@
+.twitter-thread-preview {
+  background: #000;
+  border-radius: 12px;
+  padding: 16px;
+  color: #e7e9ea;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.twitter-thread-empty {
+  background: #000;
+  border-radius: 12px;
+  padding: 40px 16px;
+  text-align: center;
+  color: #71767b;
+}
+
+.thread-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.thread-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #1d9bf0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.thread-avatar svg {
+  width: 28px;
+  height: 28px;
+  color: #fff;
+}
+
+.thread-user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.thread-display-name {
+  font-weight: 700;
+  font-size: 15px;
+  color: #e7e9ea;
+}
+
+.thread-username {
+  font-size: 15px;
+  color: #71767b;
+}
+
+.thread-content {
+  margin-bottom: 12px;
+}
+
+.thread-text {
+  font-size: 17px;
+  line-height: 1.5;
+  color: #e7e9ea;
+  margin: 0 0 12px 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.thread-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 15px;
+  color: #71767b;
+}
+
+.thread-timestamp::after {
+  content: ' · ';
+}
+
+.thread-views {
+  color: #1d9bf0;
+}
+
+.thread-actions-bar {
+  display: flex;
+  justify-content: space-around;
+  padding: 12px 0;
+  border-top: 1px solid #2f3336;
+  border-bottom: 1px solid #2f3336;
+  margin-bottom: 12px;
+}
+
+.thread-action-btn {
+  background: none;
+  border: none;
+  color: #71767b;
+  cursor: default;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thread-action-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.thread-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.nav-btn {
+  background: #2f3336;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e7e9ea;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.nav-btn:hover:not(:disabled) {
+  background: #3e4449;
+}
+
+.nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.thread-indicator {
+  font-size: 14px;
+  color: #71767b;
+  font-weight: 500;
+  min-width: 60px;
+  text-align: center;
+}
+
+.thread-copy-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #1d9bf0;
+  color: #fff;
+  border: none;
+  border-radius: 9999px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.copy-btn:hover {
+  background: #1a8cd8;
+}
+
+.copy-btn.copied {
+  background: #00ba7c;
+}

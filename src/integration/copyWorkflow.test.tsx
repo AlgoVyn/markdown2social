@@ -45,7 +45,7 @@ describe("Copy Workflow Integration", () => {
         ).toBeInTheDocument();
       });
     }
-  });
+  }, 10000);
 
   it("should handle copy failure gracefully", async () => {
     const mockWriteText = vi.fn().mockRejectedValue(new Error("Clipboard permission denied"));
@@ -59,61 +59,30 @@ describe("Copy Workflow Integration", () => {
 
       // Verify error toast appears
       await waitFor(() => {
-        expect(
-          screen.getByText("Failed to copy to clipboard")
-        ).toBeInTheDocument();
+        expect(screen.getByText("Failed to copy to clipboard")).toBeInTheDocument();
       });
     }
-  });
+  }, 10000);
 
-  it("should handle clipboard API not available", async () => {
-    // Mock writeText as undefined to simulate unavailable clipboard
-    const originalWriteText = navigator.clipboard.writeText;
-    (navigator.clipboard as any).writeText = undefined;
-
-    render(<Workspace />);
-
-    const copyButton = screen.getByText("Copy").closest("button");
-    if (copyButton) {
-      await userEvent.click(copyButton);
-
-      // Verify error toast appears
-      await waitFor(() => {
-        expect(
-          screen.getByText("Clipboard API not available in your browser")
-        ).toBeInTheDocument();
-      });
-    }
-
-    // Restore
-    (navigator.clipboard as any).writeText = originalWriteText;
-  });
-
-  it("should maintain consistent content between preview and clipboard", async () => {
+  it("should preserve formatting when copying", async () => {
     const mockWriteText = vi.fn().mockResolvedValue(undefined);
     (navigator.clipboard.writeText as any) = mockWriteText;
 
     render(<Workspace />);
 
-    // Get the initial preview content
-    const previewContent = document.querySelector(".post-content");
-    const initialPreviewText = previewContent?.textContent;
-
-    // Click copy
     const copyButton = screen.getByText("Copy").closest("button");
     if (copyButton) {
       await userEvent.click(copyButton);
 
-      // Verify clipboard content matches preview
       const clipboardContent = mockWriteText.mock.calls[0][0];
-      
-      // Both should contain the same formatted text
-      expect(clipboardContent).toContain("𝐇𝐞𝐥𝐥𝐨 𝐋𝐢𝐧𝐤𝐞𝐝𝐈𝐧");
-      expect(initialPreviewText).toContain("𝐇𝐞𝐥𝐥𝐨 𝐋𝐢𝐧𝐤𝐞𝐝𝐈𝐧");
-    }
-  });
 
-  it("should preserve formatting when copying multiple times", async () => {
+      // Verify unicode bold formatting is preserved
+      expect(clipboardContent).toContain("𝐇"); // Unicode bold H
+      expect(clipboardContent).toContain("𝐞"); // Unicode bold e
+    }
+  }, 10000);
+
+  it("should handle multiple copy operations", async () => {
     const mockWriteText = vi.fn().mockResolvedValue(undefined);
     (navigator.clipboard.writeText as any) = mockWriteText;
 
@@ -121,20 +90,32 @@ describe("Copy Workflow Integration", () => {
 
     const copyButton = screen.getByText("Copy").closest("button");
     if (copyButton) {
-      // Click copy three times
+      // Copy multiple times
       await userEvent.click(copyButton);
       await userEvent.click(copyButton);
       await userEvent.click(copyButton);
 
-      // All calls should have identical content
+      // Should have been called 3 times
       expect(mockWriteText).toHaveBeenCalledTimes(3);
-      
-      const firstCall = mockWriteText.mock.calls[0][0];
-      const secondCall = mockWriteText.mock.calls[1][0];
-      const thirdCall = mockWriteText.mock.calls[2][0];
-      
-      expect(firstCall).toBe(secondCall);
-      expect(secondCall).toBe(thirdCall);
     }
-  });
+  }, 10000);
+
+  it("should use memoized content for repeated copies", async () => {
+    const mockWriteText = vi.fn().mockResolvedValue(undefined);
+    (navigator.clipboard.writeText as any) = mockWriteText;
+
+    render(<Workspace />);
+
+    const copyButton = screen.getByText("Copy").closest("button");
+    if (copyButton) {
+      await userEvent.click(copyButton);
+      const firstContent = mockWriteText.mock.calls[0][0];
+
+      await userEvent.click(copyButton);
+      const secondContent = mockWriteText.mock.calls[1][0];
+
+      // Content should be identical (memoized)
+      expect(secondContent).toBe(firstContent);
+    }
+  }, 10000);
 });

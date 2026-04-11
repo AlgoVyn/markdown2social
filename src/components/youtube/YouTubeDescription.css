@@ -1,0 +1,187 @@
+.youtube-container {
+  background: #fff;
+  border-radius: 12px;
+  font-family: 'Roboto', 'Arial', sans-serif;
+  color: #030303;
+  overflow: hidden;
+  border: 1px solid #e5e5e5;
+}
+
+.youtube-video-section {
+  padding: 16px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.youtube-video-placeholder {
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.youtube-play-btn {
+  position: absolute;
+  width: 68px;
+  height: 48px;
+  background: #212121;
+  opacity: 0.8;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.youtube-video-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.youtube-video-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.youtube-channel-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.youtube-channel-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ff0000;
+}
+
+.youtube-channel-name {
+  font-weight: 500;
+  flex: 1;
+}
+
+.youtube-subscribe-btn {
+  background: #cc0000;
+  color: #fff;
+  border: none;
+  border-radius: 2px;
+  padding: 10px 16px;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: default;
+}
+
+.youtube-description-box {
+  padding: 16px;
+  background: #f9f9f9;
+}
+
+.youtube-description-header {
+  font-size: 14px;
+  font-weight: 500;
+  color: #606060;
+  margin-bottom: 12px;
+}
+
+.youtube-description-content {
+  margin-bottom: 12px;
+}
+
+.youtube-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #030303;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.youtube-text .yt-hashtag {
+  color: #065fd4;
+  cursor: pointer;
+}
+
+.youtube-placeholder {
+  color: #606060;
+  font-style: italic;
+  margin: 0;
+}
+
+.youtube-hashtags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.youtube-hashtag-pill {
+  color: #065fd4;
+  font-size: 14px;
+}
+
+.youtube-show-more {
+  text-align: center;
+}
+
+.youtube-show-more button {
+  background: none;
+  border: none;
+  color: #065fd4;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: default;
+  padding: 8px 16px;
+}
+
+.youtube-comments-section {
+  padding: 16px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.youtube-comments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.youtube-sort-btn {
+  background: none;
+  border: none;
+  color: #606060;
+  font-size: 14px;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.youtube-comment-input {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.youtube-comment-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #065fd4;
+  flex-shrink: 0;
+}
+
+.youtube-comment-placeholder {
+  flex: 1;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e5e5;
+  color: #606060;
+  font-size: 14px;
+}

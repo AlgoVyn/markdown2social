@@ -1,0 +1,154 @@
+.reddit-post {
+  display: flex;
+  background: #fff;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.reddit-vote-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px;
+  background: #f8f9fa;
+  border-right: 1px solid #edeff1;
+  min-width: 40px;
+}
+
+.reddit-vote-btn {
+  background: none;
+  border: none;
+  color: #878a8c;
+  cursor: default;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reddit-vote-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.reddit-upvote:hover {
+  color: #ff4500;
+  background: rgba(255, 69, 0, 0.1);
+}
+
+.reddit-downvote:hover {
+  color: #7193ff;
+  background: rgba(113, 147, 255, 0.1);
+}
+
+.reddit-vote-count {
+  font-weight: 600;
+  font-size: 12px;
+  color: #1a1a1b;
+  margin: 4px 0;
+}
+
+.reddit-content {
+  flex: 1;
+  padding: 8px 16px;
+}
+
+.reddit-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  margin-bottom: 8px;
+  color: #787c7e;
+}
+
+.reddit-avatar-small {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #0079d3;
+}
+
+.reddit-subreddit {
+  font-weight: 700;
+  color: #1a1a1b;
+}
+
+.reddit-dot {
+  font-size: 8px;
+}
+
+.reddit-meta {
+  color: #787c7e;
+}
+
+.reddit-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #1a1a1b;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+}
+
+.reddit-body {
+  margin-bottom: 12px;
+}
+
+.reddit-text {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #1a1a1b;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.reddit-text strong {
+  font-weight: 600;
+}
+
+.reddit-text em {
+  font-style: italic;
+}
+
+.reddit-text code {
+  background: #f6f7f8;
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-family: 'Noto Mono', 'Monaco', monospace;
+  font-size: 12px;
+}
+
+.reddit-placeholder {
+  color: #787c7e;
+  font-style: italic;
+  margin: 0;
+}
+
+.reddit-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.reddit-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: #878a8c;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: default;
+  padding: 8px;
+  border-radius: 2px;
+}
+
+.reddit-action-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.reddit-action-btn svg {
+  width: 16px;
+  height: 16px;
+}
