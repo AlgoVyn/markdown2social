@@ -3,18 +3,35 @@
   width: 100%;
   overflow: auto;
   background-color: var(--surface-color);
+  display: flex;
+  flex-direction: column;
 }
 
 .codemirror-editor {
-  height: 100%;
-  font-size: 14px;
+  flex: 1;
+  font-size: 15px;
 }
 
 .cm-editor {
   height: 100%;
+  background-color: transparent !important;
 }
 
+/* Ensure codemirror doesn't clash with dark mode by forcing our vars if needed, but uiw handles themes */
 .cm-scroller {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
-  padding: 1rem 0;
+  font-family: 'JetBrains Mono', 'Fira Code', source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+  padding: 1.5rem 1rem;
+  line-height: 1.6;
+}
+
+.cm-content {
+  color: var(--text-color);
+}
+
+.cm-activeLine {
+  background-color: var(--secondary-color) !important;
+}
+
+.cm-activeLineGutter {
+  background-color: var(--secondary-color) !important;
 }

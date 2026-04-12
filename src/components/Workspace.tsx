@@ -12,6 +12,7 @@ import { useToast } from '../hooks/useToast';
 import './Workspace.css';
 
 export const Workspace: React.FC = () => {
+  const [theme, setTheme] = useState<string>(() => localStorage.getItem('theme') || 'light');
   const [markdown, setMarkdown] = useState<string>('# Hello LinkedIn\n\nWrite your post here...');
   const [platform, setPlatform] = useState<string>('linkedin');
   const [formatStyle, setFormatStyle] = useState<string>('standard');
@@ -32,6 +33,13 @@ export const Workspace: React.FC = () => {
     }, 2000);
     return () => clearTimeout(timeout);
   }, [markdown, saveDraft]);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
 
   const handleCopy = async () => {
     // Check if clipboard API is available
@@ -64,6 +72,8 @@ export const Workspace: React.FC = () => {
         onOpenHistory={() => setIsHistoryOpen(true)}
         platform={platform}
         setPlatform={setPlatform}
+        theme={theme}
+        toggleTheme={toggleTheme}
       />
       <div className="workspace-panes">
         <div className="pane left-pane">

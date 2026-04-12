@@ -4,20 +4,25 @@
   flex: 1;
   height: 100vh;
   overflow: hidden;
+  background-color: var(--bg-color);
 }
 
 .workspace-panes {
   display: flex;
   flex: 1;
   overflow: hidden;
+  gap: 1rem;
+  padding: 1rem;
 }
 
 .pane {
   flex: 1;
   height: 100%;
   overflow: hidden;
-}
-
-.left-pane {
-  border-right: 1px solid var(--border-color);
+  background-color: var(--surface-color);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
 }

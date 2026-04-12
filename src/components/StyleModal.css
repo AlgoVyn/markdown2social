@@ -1,25 +1,42 @@
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .modal-content {
   background-color: var(--surface-color);
-  padding: 2rem;
-  border-radius: 8px;
+  padding: 2.5rem;
+  border-radius: var(--radius-xl);
   width: 90%;
   max-width: 500px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  animation: scaleUp 0.2s ease-out;
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .modal-content h2 {
   margin-top: 0;
   margin-bottom: 1.5rem;
+  color: var(--text-color);
+  font-weight: 700;
 }
 
 .style-options {
@@ -31,25 +48,34 @@
 .style-option {
   display: flex;
   gap: 1rem;
-  padding: 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
+  padding: 1.25rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-normal);
+  background-color: var(--surface-color);
+}
+
+.style-option:hover {
+  border-color: var(--text-secondary);
 }
 
 .style-option.active {
   border-color: var(--primary-color);
-  background-color: rgba(10, 102, 194, 0.05); /* very light blue */
+  background-color: rgba(99, 102, 241, 0.05); /* very light primary */
+  box-shadow: 0 0 0 1px var(--primary-color);
 }
 
 .style-option input {
   margin-top: 4px;
+  accent-color: var(--primary-color);
 }
 
 .style-option strong {
   display: block;
   margin-bottom: 4px;
+  color: var(--text-color);
+  font-weight: 600;
 }
 
 .style-option p {
@@ -65,15 +91,23 @@
 }
 
 .close-btn {
-  padding: 0.5rem 1.5rem;
-  background-color: var(--primary-color);
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   font-weight: 600;
   cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 }
 
 .close-btn:hover {
-  background-color: #004182;
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.close-btn:active {
+  transform: translateY(0);
 }

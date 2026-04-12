@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, Copy, Monitor, Clock } from 'lucide-react';
+import { Settings, Copy, Monitor, Clock, Sun, Moon } from 'lucide-react';
 import { PLATFORM_CONFIGS } from '../utils/platforms';
 import './Toolbar.css';
 
@@ -9,6 +9,8 @@ interface ToolbarProps {
   onOpenHistory: () => void;
   platform: string;
   setPlatform: (val: string) => void;
+  theme: string;
+  toggleTheme: () => void;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -17,6 +19,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onOpenHistory,
   platform,
   setPlatform,
+  theme,
+  toggleTheme,
 }) => {
   return (
     <header className="toolbar" role="banner" aria-label="Application toolbar">
@@ -51,6 +55,14 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         >
           <Clock size={18} aria-hidden="true" />
           <span>History</span>
+        </button>
+
+        <button
+          className="action-button icon-button"
+          onClick={toggleTheme}
+          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+        >
+          {theme === 'light' ? <Moon size={18} aria-hidden="true" /> : <Sun size={18} aria-hidden="true" />}
         </button>
 
         <button
