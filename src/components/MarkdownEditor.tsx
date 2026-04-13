@@ -6,9 +6,14 @@ import './MarkdownEditor.css';
 interface MarkdownEditorProps {
   value: string;
   onChange: (value: string) => void;
+  theme?: 'light' | 'dark';
 }
 
-export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ value, onChange }) => {
+export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
+  value,
+  onChange,
+  theme = 'light',
+}) => {
   return (
     <section className="editor-container" aria-label="Markdown editor">
       <label htmlFor="markdown-editor" className="visually-hidden">
@@ -21,7 +26,7 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({ value, onChange 
         extensions={[markdown({ base: markdownLanguage })]}
         onChange={onChange}
         className="codemirror-editor"
-        theme="light"
+        theme={theme}
         aria-label="Markdown editor text area"
         basicSetup={{
           lineNumbers: true,

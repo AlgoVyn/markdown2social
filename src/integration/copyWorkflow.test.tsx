@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Workspace } from '../components/Workspace';
 
@@ -32,6 +32,11 @@ describe('Copy Workflow Integration', () => {
     if (copyButton) {
       await userEvent.click(copyButton);
 
+      // Wait for loading state to clear
+      await act(async () => {
+        vi.advanceTimersByTime(400);
+      });
+
       // Verify clipboard was called with formatted content
       expect(mockWriteText).toHaveBeenCalledTimes(1);
       const clipboardContent = mockWriteText.mock.calls[0][0];
@@ -58,6 +63,11 @@ describe('Copy Workflow Integration', () => {
     if (copyButton) {
       await userEvent.click(copyButton);
 
+      // Wait for loading state to clear
+      await act(async () => {
+        vi.advanceTimersByTime(400);
+      });
+
       // Verify error toast appears
       await waitFor(() => {
         expect(screen.getByText('Failed to copy to clipboard')).toBeInTheDocument();
@@ -74,6 +84,11 @@ describe('Copy Workflow Integration', () => {
     const copyButton = screen.getByText('Copy').closest('button');
     if (copyButton) {
       await userEvent.click(copyButton);
+
+      // Wait for loading state to clear
+      await act(async () => {
+        vi.advanceTimersByTime(400);
+      });
 
       const clipboardContent = mockWriteText.mock.calls[0][0];
 
@@ -93,8 +108,25 @@ describe('Copy Workflow Integration', () => {
     if (copyButton) {
       // Copy multiple times
       await userEvent.click(copyButton);
+
+      // Wait for first loading state
+      await act(async () => {
+        vi.advanceTimersByTime(350);
+      });
+
       await userEvent.click(copyButton);
+
+      // Wait for second loading state
+      await act(async () => {
+        vi.advanceTimersByTime(350);
+      });
+
       await userEvent.click(copyButton);
+
+      // Wait for third loading state
+      await act(async () => {
+        vi.advanceTimersByTime(350);
+      });
 
       // Should have been called 3 times
       expect(mockWriteText).toHaveBeenCalledTimes(3);
@@ -110,9 +142,21 @@ describe('Copy Workflow Integration', () => {
     const copyButton = screen.getByText('Copy').closest('button');
     if (copyButton) {
       await userEvent.click(copyButton);
+
+      // Wait for loading state
+      await act(async () => {
+        vi.advanceTimersByTime(350);
+      });
+
       const firstContent = mockWriteText.mock.calls[0][0];
 
       await userEvent.click(copyButton);
+
+      // Wait for loading state
+      await act(async () => {
+        vi.advanceTimersByTime(350);
+      });
+
       const secondContent = mockWriteText.mock.calls[1][0];
 
       // Content should be identical (memoized)

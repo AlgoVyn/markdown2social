@@ -1,4 +1,4 @@
-# MDtoSocial
+# Markdown2Social
 
 A sleek, modern web application that converts Markdown content into formatted social media posts. Write in Markdown, preview in real-time, and copy formatted content ready for LinkedIn and other platforms.
 
@@ -13,11 +13,11 @@ A sleek, modern web application that converts Markdown content into formatted so
 - **Real-time Preview**: See how your post will look instantly
 - **Multi-platform Support**: Optimized for LinkedIn (expandable to other platforms)
 - **Rich Text Copying**: Copy content with inline styles preserved
-- **Formatting Styles**: 
+- **Formatting Styles**:
   - Standard formatting
   - Bullet-optimized (converts bullets to ✅ emojis)
   - Bold headers (converts headers to bold text)
-- **Unicode Text Conversion**: Converts **bold** and *italic* Markdown to Unicode variants that render on all platforms
+- **Unicode Text Conversion**: Converts **bold** and _italic_ Markdown to Unicode variants that render on all platforms
 - **Code Highlighting**: Syntax highlighting for code blocks with 30+ languages supported via highlight.js
 - **Auto-save History**: Drafts are automatically saved with timestamps
 - **Draft Management**: View and restore previous drafts
@@ -26,7 +26,7 @@ A sleek, modern web application that converts Markdown content into formatted so
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 
 ### Installation
@@ -68,7 +68,7 @@ The editor supports standard Markdown syntax:
 - Headers (`# H1`, `## H2`, etc.)
 - Bold (`**text**`) and italic (`*text*` or `_text_`)
 - Lists (bullet and numbered)
-- Code blocks with syntax highlighting (```` ```language ````)
+- Code blocks with syntax highlighting (` ```language `)
 - Inline code (`` `code` ``)
 - Links (`[text](url)`)
 

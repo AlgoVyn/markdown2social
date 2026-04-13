@@ -1,20 +1,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Light Theme (Default) */
-  --bg-color: #f8fafc;
-  --surface-color: #ffffff;
-  --text-color: #0f172a;
-  --text-secondary: #64748b;
-  --border-color: #e2e8f0;
+  /* Light Theme - VS Code Colors */
+  --bg-color: #ffffff;
+  --surface-color: #f3f3f3;
+  --text-color: #1e1e1e;
+  --text-secondary: #6e6e6e;
+  --border-color: #e5e5e5;
 
-  --primary-color: #4f46e5;
-  --primary-hover: #4338ca;
-  --secondary-color: #f1f5f9;
-  --secondary-hover: #e2e8f0;
-  --danger-color: #ef4444;
-  --danger-hover: #dc2626;
-  --success-color: #10b981;
+  --primary-color: #007acc;
+  --primary-hover: #005a9e;
+  --secondary-color: #f3f3f3;
+  --secondary-hover: #e5e5e5;
+  --danger-color: #c75450;
+  --danger-hover: #a9443f;
+  --success-color: #16825d;
+
+  /* Counter Status Colors */
+  --counter-ok-color: #16825d;
+  --counter-ok-bg: rgba(22, 130, 93, 0.1);
+  --counter-warning-color: #dcdcaa;
+  --counter-warning-bg: rgba(220, 220, 170, 0.15);
+  --counter-over-color: #c75450;
+  --counter-over-bg: rgba(199, 84, 80, 0.15);
+  --counter-text-muted: #6e6e6e;
+  --counter-ring-bg: #e5e5e5;
 
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -35,24 +45,35 @@
 }
 
 [data-theme='dark'] {
-  --bg-color: #0f172a;
-  --surface-color: #1e293b;
-  --text-color: #f8fafc;
-  --text-secondary: #94a3b8;
-  --border-color: #334155;
+  /* Dark Theme - VS Code Colors */
+  --bg-color: #1e1e1e;
+  --surface-color: #252526;
+  --text-color: #d4d4d4;
+  --text-secondary: #858585;
+  --border-color: #3c3c3c;
 
-  --primary-color: #6366f1;
-  --primary-hover: #818cf8;
-  --secondary-color: #334155;
-  --secondary-hover: #475569;
+  --primary-color: #007acc;
+  --primary-hover: #0098ff;
+  --secondary-color: #2d2d30;
+  --secondary-hover: #3c3c3c;
 
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
   --shadow-glass: 0 4px 30px rgba(0, 0, 0, 0.3);
 
-  --glass-bg: rgba(30, 41, 59, 0.8);
+  --glass-bg: rgba(37, 37, 38, 0.8);
   --glass-border: rgba(255, 255, 255, 0.05);
+
+  /* Counter Status Colors - Dark Mode */
+  --counter-ok-color: #7ee787;
+  --counter-ok-bg: rgba(126, 231, 135, 0.15);
+  --counter-warning-color: #ffd700;
+  --counter-warning-bg: rgba(255, 215, 0, 0.2);
+  --counter-over-color: #ff6b6b;
+  --counter-over-bg: rgba(255, 107, 107, 0.2);
+  --counter-text-muted: #858585;
+  --counter-ring-bg: #3c3c3c;
 }
 
 body {

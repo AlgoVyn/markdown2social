@@ -21,12 +21,6 @@ export const CharacterCounter: React.FC<CharacterCounterProps> = ({
     return 'counter-ok';
   };
 
-  const getProgressColor = () => {
-    if (status.isOver) return '#ef4444'; // red-500
-    if (status.isWarning) return '#f59e0b'; // amber-500
-    return '#22c55e'; // green-500
-  };
-
   const circumference = 2 * Math.PI * 18;
   const strokeDashoffset = circumference - Math.min(status.percentage, 1) * circumference;
 
@@ -59,7 +53,6 @@ export const CharacterCounter: React.FC<CharacterCounterProps> = ({
             cy="20"
             r="18"
             fill="none"
-            stroke={getProgressColor()}
             strokeWidth="3"
             strokeLinecap="round"
             strokeDasharray={circumference}

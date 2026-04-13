@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Toolbar } from './Toolbar';
 import { MarkdownEditor } from './MarkdownEditor';
 import { LivePreview } from './LivePreview';
@@ -19,6 +19,8 @@ export const Workspace: React.FC = () => {
   const [formatStyle, setFormatStyle] = useState<string>('standard');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
+  const [isCopying, setIsCopying] = useState<boolean>(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState<boolean>(false);
   const { drafts, saveDraft, loadError, clearLoadError } = useHistory();
   const { toasts, addToast, removeToast } = useToast();
 
@@ -50,12 +52,14 @@ export const Workspace: React.FC = () => {
 
   const toggleTheme = () => setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
 
-  const handleCopy = async () => {
+  const handleCopy = useCallback(async () => {
     // Check if clipboard API is available
     if (!navigator.clipboard || !navigator.clipboard.writeText) {
       addToast('Clipboard API not available in your browser', 'error');
       return;
     }
+
+    setIsCopying(true);
 
     try {
       // Use the memoized socialPreview value instead of recalculating
@@ -63,12 +67,35 @@ export const Workspace: React.FC = () => {
       addToast('Copied to clipboard! Paste into LinkedIn to see formatted content.', 'success');
     } catch {
       addToast('Failed to copy to clipboard', 'error');
+    } finally {
+      // Small delay to show loading state feedback
+      setTimeout(() => setIsCopying(false), 300);
     }
-  };
+  }, [socialPreview, addToast]);
 
   const handleOpenSettings = () => {
     setIsModalOpen(true);
   };
+
+  const handleOpenHistory = useCallback(() => {
+    setIsLoadingHistory(true);
+    // Simulate loading for better UX feedback
+    setTimeout(() => {
+      setIsLoadingHistory(false);
+      setIsHistoryOpen(true);
+    }, 150);
+  }, []);
+
+  const handleLoadDraft = useCallback(
+    (draft: { markdown: string }) => {
+      setIsLoadingHistory(true);
+      setMarkdown(draft.markdown);
+      setIsHistoryOpen(false);
+      addToast('Draft loaded successfully', 'success');
+      setTimeout(() => setIsLoadingHistory(false), 200);
+    },
+    [addToast]
+  );
 
   return (
     <main className="workspace" role="main" aria-label="Markdown to Social converter workspace">
@@ -78,15 +105,21 @@ export const Workspace: React.FC = () => {
       <Toolbar
         onCopy={handleCopy}
         onOpenSettings={handleOpenSettings}
-        onOpenHistory={() => setIsHistoryOpen(true)}
+        onOpenHistory={handleOpenHistory}
         platform={platform}
         setPlatform={setPlatform}
         theme={theme}
         toggleTheme={toggleTheme}
+        isCopying={isCopying}
+        isLoadingHistory={isLoadingHistory}
       />
       <div className="workspace-panes">
         <div className="pane left-pane">
-          <MarkdownEditor value={markdown} onChange={setMarkdown} />
+          <MarkdownEditor
+            value={markdown}
+            onChange={setMarkdown}
+            theme={theme === 'dark' ? 'dark' : 'light'}
+          />
         </div>
         <div className="pane right-pane">
           <ErrorBoundary
@@ -112,7 +145,7 @@ export const Workspace: React.FC = () => {
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
         drafts={drafts}
-        onLoadDraft={(draft) => setMarkdown(draft.markdown)}
+        onLoadDraft={handleLoadDraft}
       />
       <ToastContainer toasts={toasts} onRemove={removeToast} />
     </main>

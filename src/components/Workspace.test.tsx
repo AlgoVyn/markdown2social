@@ -19,7 +19,7 @@ describe('Workspace', () => {
       render(<Workspace />);
 
       // Toolbar elements
-      expect(screen.getByText('MDtoSocial')).toBeInTheDocument();
+      expect(screen.getByText('Markdown2Social')).toBeInTheDocument();
       expect(screen.getByText('History')).toBeInTheDocument();
       expect(screen.getByText('Styles')).toBeInTheDocument();
       expect(screen.getByText('Copy')).toBeInTheDocument();
@@ -56,6 +56,11 @@ describe('Workspace', () => {
       if (copyButton) {
         await userEvent.click(copyButton);
 
+        // Wait for loading state to clear
+        await act(async () => {
+          vi.advanceTimersByTime(400);
+        });
+
         expect(mockWriteText).toHaveBeenCalledTimes(1);
         // The text should be the formatted version of initial content
         expect(mockWriteText.mock.calls[0][0]).toContain('𝐇𝐞𝐥𝐥𝐨 𝐋𝐢𝐧𝐤𝐞𝐝𝐈𝐧'); // Unicode bold characters
@@ -89,6 +94,11 @@ describe('Workspace', () => {
       const copyButton = screen.getByText('Copy').closest('button');
       if (copyButton) {
         await userEvent.click(copyButton);
+
+        // Wait for loading state to clear
+        await act(async () => {
+          vi.advanceTimersByTime(400);
+        });
 
         await waitFor(() => {
           expect(screen.getByText('Failed to copy to clipboard')).toBeInTheDocument();
@@ -129,6 +139,11 @@ describe('Workspace', () => {
       if (copyButton) {
         await userEvent.click(copyButton);
 
+        // Wait for loading state to clear
+        await act(async () => {
+          vi.advanceTimersByTime(400);
+        });
+
         expect(mockWriteText).toHaveBeenCalledTimes(1);
         const firstCall = mockWriteText.mock.calls[0][0];
 
@@ -137,8 +152,41 @@ describe('Workspace', () => {
 
         // Click again - should be identical (same memoized value)
         await userEvent.click(copyButton);
+
+        // Wait for loading state to clear
+        await act(async () => {
+          vi.advanceTimersByTime(400);
+        });
+
         expect(mockWriteText).toHaveBeenCalledTimes(2);
         expect(mockWriteText.mock.calls[1][0]).toBe(firstCall);
+      }
+    });
+
+    it('should show loading state while copying', async () => {
+      const mockWriteText = vi
+        .fn()
+        .mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 500)));
+      (navigator.clipboard.writeText as Mock).mockImplementation(mockWriteText);
+
+      render(<Workspace />);
+
+      const copyButton = screen.getByText('Copy').closest('button');
+      if (copyButton) {
+        await userEvent.click(copyButton);
+
+        // Button should show loading state
+        expect(screen.getByText('Copying...')).toBeInTheDocument();
+
+        // Advance timers to complete the copy
+        await act(async () => {
+          vi.advanceTimersByTime(800);
+        });
+
+        // Button should return to normal state
+        await waitFor(() => {
+          expect(screen.getByText('Copy')).toBeInTheDocument();
+        });
       }
     });
   });
@@ -202,6 +250,31 @@ describe('Workspace', () => {
       if (historyButton) {
         await userEvent.click(historyButton);
 
+        // Wait for loading delay
+        await act(async () => {
+          vi.advanceTimersByTime(200);
+        });
+
+        expect(screen.getByText('Conversion History')).toBeInTheDocument();
+      }
+    });
+
+    it('should show loading state on history button', async () => {
+      render(<Workspace />);
+
+      const historyButton = screen.getByText('History').closest('button');
+      if (historyButton) {
+        await userEvent.click(historyButton);
+
+        // Button should be disabled with loading state
+        expect(historyButton).toHaveAttribute('aria-busy', 'true');
+
+        // Wait for loading delay
+        await act(async () => {
+          vi.advanceTimersByTime(200);
+        });
+
+        // Modal should open
         expect(screen.getByText('Conversion History')).toBeInTheDocument();
       }
     });
@@ -212,6 +285,11 @@ describe('Workspace', () => {
       const historyButton = screen.getByText('History').closest('button');
       if (historyButton) {
         await userEvent.click(historyButton);
+
+        // Wait for loading delay
+        await act(async () => {
+          vi.advanceTimersByTime(200);
+        });
 
         const closeButton = screen.getByText('×');
         await userEvent.click(closeButton);
@@ -228,6 +306,11 @@ describe('Workspace', () => {
       const historyButton = screen.getByText('History').closest('button');
       if (historyButton) {
         await userEvent.click(historyButton);
+
+        // Wait for loading delay
+        await act(async () => {
+          vi.advanceTimersByTime(200);
+        });
 
         expect(screen.getByText('No drafts saved yet. Start typing to save!')).toBeInTheDocument();
       }
