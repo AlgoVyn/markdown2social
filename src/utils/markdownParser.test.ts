@@ -1,260 +1,260 @@
-import { describe, it, expect } from "vitest";
-import { parseMarkdown, markdownToSocialText } from "../utils/markdownParser";
+import { describe, it, expect } from 'vitest';
+import { parseMarkdown, markdownToSocialText } from '../utils/markdownParser';
 
-describe("parseMarkdown", () => {
-  describe("basic parsing", () => {
-    it("should parse headings", () => {
-      const markdown = "# Heading 1\n## Heading 2";
+describe('parseMarkdown', () => {
+  describe('basic parsing', () => {
+    it('should parse headings', () => {
+      const markdown = '# Heading 1\n## Heading 2';
       const result = parseMarkdown(markdown);
-      expect(result).toContain("<h1");
-      expect(result).toContain("Heading 1");
-      expect(result).toContain("<h2");
-      expect(result).toContain("Heading 2");
+      expect(result).toContain('<h1');
+      expect(result).toContain('Heading 1');
+      expect(result).toContain('<h2');
+      expect(result).toContain('Heading 2');
     });
 
-    it("should parse bold text", () => {
-      const markdown = "**bold text**";
+    it('should parse bold text', () => {
+      const markdown = '**bold text**';
       const result = parseMarkdown(markdown);
-      expect(result).toContain("<strong");
-      expect(result).toContain("bold text");
+      expect(result).toContain('<strong');
+      expect(result).toContain('bold text');
     });
 
-    it("should parse italic text", () => {
-      const markdown = "*italic text*";
+    it('should parse italic text', () => {
+      const markdown = '*italic text*';
       const result = parseMarkdown(markdown);
-      expect(result).toContain("<em");
-      expect(result).toContain("italic text");
+      expect(result).toContain('<em');
+      expect(result).toContain('italic text');
     });
 
-    it("should parse links", () => {
-      const markdown = "[link text](https://example.com)";
+    it('should parse links', () => {
+      const markdown = '[link text](https://example.com)';
       const result = parseMarkdown(markdown);
-      expect(result).toContain("<a");
+      expect(result).toContain('<a');
       expect(result).toContain('href="https://example.com"');
-      expect(result).toContain("link text");
+      expect(result).toContain('link text');
     });
 
-    it("should parse unordered lists", () => {
-      const markdown = "- Item 1\n- Item 2\n* Item 3";
+    it('should parse unordered lists', () => {
+      const markdown = '- Item 1\n- Item 2\n* Item 3';
       const result = parseMarkdown(markdown);
-      expect(result).toContain("<ul");
-      expect(result).toContain("<li");
-      expect(result).toContain("Item 1");
-      expect(result).toContain("Item 2");
-      expect(result).toContain("Item 3");
+      expect(result).toContain('<ul');
+      expect(result).toContain('<li');
+      expect(result).toContain('Item 1');
+      expect(result).toContain('Item 2');
+      expect(result).toContain('Item 3');
     });
 
-    it("should parse ordered lists", () => {
-      const markdown = "1. First\n2. Second";
+    it('should parse ordered lists', () => {
+      const markdown = '1. First\n2. Second';
       const result = parseMarkdown(markdown);
-      expect(result).toContain("<ol");
-      expect(result).toContain("<li");
-      expect(result).toContain("First");
-      expect(result).toContain("Second");
+      expect(result).toContain('<ol');
+      expect(result).toContain('<li');
+      expect(result).toContain('First');
+      expect(result).toContain('Second');
     });
 
-    it("should parse code blocks", () => {
-      const markdown = "\`\`\`javascript\nconst x = 1;\n\`\`\`";
+    it('should parse code blocks', () => {
+      const markdown = '```javascript\nconst x = 1;\n```';
       const result = parseMarkdown(markdown);
-      expect(result).toContain("<pre");
-      expect(result).toContain("<code");
-      expect(result).toContain("const");
-      expect(result).toContain("x");
+      expect(result).toContain('<pre');
+      expect(result).toContain('<code');
+      expect(result).toContain('const');
+      expect(result).toContain('x');
     });
 
-    it("should parse inline code", () => {
-      const markdown = "\`inline code\`";
+    it('should parse inline code', () => {
+      const markdown = '`inline code`';
       const result = parseMarkdown(markdown);
-      expect(result).toContain("<code");
-      expect(result).toContain("inline code");
+      expect(result).toContain('<code');
+      expect(result).toContain('inline code');
     });
   });
 
-  describe("style transformations", () => {
-    it("should apply bullet-optimized style", () => {
-      const markdown = "- Item 1\n- Item 2";
-      const result = parseMarkdown(markdown, "bullet-optimized");
-      expect(result).toContain("✅");
+  describe('style transformations', () => {
+    it('should apply bullet-optimized style', () => {
+      const markdown = '- Item 1\n- Item 2';
+      const result = parseMarkdown(markdown, 'bullet-optimized');
+      expect(result).toContain('✅');
     });
 
-    it("should apply bold-headers style", () => {
-      const markdown = "# Header";
-      const result = parseMarkdown(markdown, "bold-headers");
-      expect(result).toContain("<strong");
-      expect(result).toContain("Header");
+    it('should apply bold-headers style', () => {
+      const markdown = '# Header';
+      const result = parseMarkdown(markdown, 'bold-headers');
+      expect(result).toContain('<strong');
+      expect(result).toContain('Header');
     });
 
-    it("should not apply transformations for standard style", () => {
-      const markdown = "# Header\n- Item";
-      const result = parseMarkdown(markdown, "standard");
-      expect(result).toContain("<h1");
-      expect(result).toContain("<ul");
-    });
-  });
-
-  describe("clipboard formatting", () => {
-    it("should apply inline styles for clipboard", () => {
-      const markdown = "\`\`\`javascript\nconst x = 1;\n\`\`\`";
-      const result = parseMarkdown(markdown, "standard", true);
-      expect(result).toContain("hljs");
-      expect(result).toContain("style=");
+    it('should not apply transformations for standard style', () => {
+      const markdown = '# Header\n- Item';
+      const result = parseMarkdown(markdown, 'standard');
+      expect(result).toContain('<h1');
+      expect(result).toContain('<ul');
     });
   });
 
-  describe("sanitization", () => {
-    it("should sanitize malicious HTML", () => {
+  describe('clipboard formatting', () => {
+    it('should apply inline styles for clipboard', () => {
+      const markdown = '```javascript\nconst x = 1;\n```';
+      const result = parseMarkdown(markdown, 'standard', true);
+      expect(result).toContain('hljs');
+      expect(result).toContain('style=');
+    });
+  });
+
+  describe('sanitization', () => {
+    it('should sanitize malicious HTML', () => {
       const markdown = '<script>alert("xss")</script>';
       const result = parseMarkdown(markdown);
-      expect(result).not.toContain("<script");
+      expect(result).not.toContain('<script');
     });
 
-    it("should re-sanitize HTML after clipboard style injection", () => {
-      const markdown = "# Test";
-      const result = parseMarkdown(markdown, "standard", true);
+    it('should re-sanitize HTML after clipboard style injection', () => {
+      const markdown = '# Test';
+      const result = parseMarkdown(markdown, 'standard', true);
       // Should not contain any script tags even after DOM manipulation
-      expect(result).not.toContain("<script");
-      expect(result).not.toContain("javascript:");
+      expect(result).not.toContain('<script');
+      expect(result).not.toContain('javascript:');
     });
   });
 });
 
-describe("markdownToSocialText", () => {
-  describe("heading conversion", () => {
-    it("should convert h1 to unicode bold", () => {
-      const markdown = "# Hello World";
+describe('markdownToSocialText', () => {
+  describe('heading conversion', () => {
+    it('should convert h1 to unicode bold', () => {
+      const markdown = '# Hello World';
       const result = markdownToSocialText(markdown);
       // Unicode bold "Hello World"
-      expect(result).toContain("𝐇");
-      expect(result).toContain("𝐞");
-      expect(result).not.toContain("#");
+      expect(result).toContain('𝐇');
+      expect(result).toContain('𝐞');
+      expect(result).not.toContain('#');
     });
 
-    it("should convert h2 to unicode bold", () => {
-      const markdown = "## Second Heading";
+    it('should convert h2 to unicode bold', () => {
+      const markdown = '## Second Heading';
       const result = markdownToSocialText(markdown);
-      expect(result).not.toContain("##");
-      expect(result).toContain("𝐒");
+      expect(result).not.toContain('##');
+      expect(result).toContain('𝐒');
     });
   });
 
-  describe("bold text conversion", () => {
-    it("should convert **text** to unicode bold", () => {
-      const markdown = "**bold**";
+  describe('bold text conversion', () => {
+    it('should convert **text** to unicode bold', () => {
+      const markdown = '**bold**';
       const result = markdownToSocialText(markdown);
-      expect(result).toContain("𝐛");
-      expect(result).toContain("𝐨");
-      expect(result).not.toContain("**");
+      expect(result).toContain('𝐛');
+      expect(result).toContain('𝐨');
+      expect(result).not.toContain('**');
     });
 
-    it("should handle multiple bold sections", () => {
-      const markdown = "**first** and **second**";
+    it('should handle multiple bold sections', () => {
+      const markdown = '**first** and **second**';
       const result = markdownToSocialText(markdown);
-      expect(result).not.toContain("**");
-      expect(result).toContain("𝐟");
-      expect(result).toContain("𝐬");
+      expect(result).not.toContain('**');
+      expect(result).toContain('𝐟');
+      expect(result).toContain('𝐬');
     });
   });
 
-  describe("italic text conversion", () => {
-    it("should convert *text* to unicode italic", () => {
-      const markdown = "*italic*";
+  describe('italic text conversion', () => {
+    it('should convert *text* to unicode italic', () => {
+      const markdown = '*italic*';
       const result = markdownToSocialText(markdown);
       // Mathematical Sans-Serif Italic characters
-      expect(result).toContain("𝘪");
-      expect(result).toContain("𝘵");
-      expect(result).not.toContain("*");
+      expect(result).toContain('𝘪');
+      expect(result).toContain('𝘵');
+      expect(result).not.toContain('*');
     });
 
-    it("should convert _text_ to unicode italic", () => {
-      const markdown = "_italic_";
+    it('should convert _text_ to unicode italic', () => {
+      const markdown = '_italic_';
       const result = markdownToSocialText(markdown);
       // Mathematical Sans-Serif Italic characters
-      expect(result).toContain("𝘪");
-      expect(result).toContain("𝘵");
-      expect(result).not.toContain("_");
+      expect(result).toContain('𝘪');
+      expect(result).toContain('𝘵');
+      expect(result).not.toContain('_');
     });
   });
 
-  describe("bullet point styles", () => {
-    it("should convert dashes to checkmarks in bullet-optimized style", () => {
-      const markdown = "- Item";
-      const result = markdownToSocialText(markdown, "bullet-optimized");
-      expect(result).toContain("✅");
-      expect(result).not.toContain("- Item");
+  describe('bullet point styles', () => {
+    it('should convert dashes to checkmarks in bullet-optimized style', () => {
+      const markdown = '- Item';
+      const result = markdownToSocialText(markdown, 'bullet-optimized');
+      expect(result).toContain('✅');
+      expect(result).not.toContain('- Item');
     });
 
-    it("should convert dashes to bullets in standard style", () => {
-      const markdown = "- Item";
-      const result = markdownToSocialText(markdown, "standard");
-      expect(result).toContain("•");
-      expect(result).not.toContain("- Item");
+    it('should convert dashes to bullets in standard style', () => {
+      const markdown = '- Item';
+      const result = markdownToSocialText(markdown, 'standard');
+      expect(result).toContain('•');
+      expect(result).not.toContain('- Item');
     });
 
-    it("should convert asterisks to checkmarks in bullet-optimized style", () => {
-      const markdown = "* Item";
-      const result = markdownToSocialText(markdown, "bullet-optimized");
-      expect(result).toContain("✅");
-    });
-  });
-
-  describe("link conversion", () => {
-    it("should convert [text](url) to text (url)", () => {
-      const markdown = "[Click here](https://example.com)";
-      const result = markdownToSocialText(markdown);
-      expect(result).toBe("Click here (https://example.com)");
-    });
-
-    it("should convert multiple links", () => {
-      const markdown = "[Link1](url1) and [Link2](url2)";
-      const result = markdownToSocialText(markdown);
-      expect(result).toBe("Link1 (url1) and Link2 (url2)");
+    it('should convert asterisks to checkmarks in bullet-optimized style', () => {
+      const markdown = '* Item';
+      const result = markdownToSocialText(markdown, 'bullet-optimized');
+      expect(result).toContain('✅');
     });
   });
 
-  describe("code handling", () => {
-    it("should preserve inline code with backticks", () => {
-      const markdown = "Use \`const x = 1\` for assignment";
+  describe('link conversion', () => {
+    it('should convert [text](url) to text (url)', () => {
+      const markdown = '[Click here](https://example.com)';
       const result = markdownToSocialText(markdown);
-      expect(result).toContain("\`const x = 1\`");
+      expect(result).toBe('Click here (https://example.com)');
     });
 
-    it("should preserve code blocks as plain text with newlines", () => {
-      const markdown = "\`\`\`javascript\nconst x = 1;\nconsole.log(x);\n\`\`\`";
+    it('should convert multiple links', () => {
+      const markdown = '[Link1](url1) and [Link2](url2)';
       const result = markdownToSocialText(markdown);
-      expect(result).toContain("const x = 1;");
-      expect(result).toContain("console.log(x);");
-      expect(result).not.toContain("\`\`\`");
+      expect(result).toBe('Link1 (url1) and Link2 (url2)');
+    });
+  });
+
+  describe('code handling', () => {
+    it('should preserve inline code with backticks', () => {
+      const markdown = 'Use `const x = 1` for assignment';
+      const result = markdownToSocialText(markdown);
+      expect(result).toContain('`const x = 1`');
     });
 
-    it("should handle code blocks with language specification", () => {
-      const markdown = '\`\`\`python\nprint("hello")\n\`\`\`';
+    it('should preserve code blocks as plain text with newlines', () => {
+      const markdown = '```javascript\nconst x = 1;\nconsole.log(x);\n```';
+      const result = markdownToSocialText(markdown);
+      expect(result).toContain('const x = 1;');
+      expect(result).toContain('console.log(x);');
+      expect(result).not.toContain('```');
+    });
+
+    it('should handle code blocks with language specification', () => {
+      const markdown = '```python\nprint("hello")\n```';
       const result = markdownToSocialText(markdown);
       expect(result).toContain('print("hello")');
     });
   });
 
-  describe("edge cases", () => {
-    it("should handle empty markdown", () => {
-      const markdown = "";
+  describe('edge cases', () => {
+    it('should handle empty markdown', () => {
+      const markdown = '';
       const result = markdownToSocialText(markdown);
-      expect(result).toBe("");
+      expect(result).toBe('');
     });
 
-    it("should handle markdown with only whitespace", () => {
-      const markdown = "   \n\n   ";
+    it('should handle markdown with only whitespace', () => {
+      const markdown = '   \n\n   ';
       const result = markdownToSocialText(markdown);
-      expect(result).toBe("   \n\n   ");
+      expect(result).toBe('   \n\n   ');
     });
 
-    it("should handle nested formatting correctly", () => {
-      const markdown = "# **Bold Header**";
+    it('should handle nested formatting correctly', () => {
+      const markdown = '# **Bold Header**';
       const result = markdownToSocialText(markdown);
       // Both header and bold should result in bold unicode
-      expect(result).not.toContain("**");
-      expect(result).not.toContain("#");
+      expect(result).not.toContain('**');
+      expect(result).not.toContain('#');
     });
 
-    it("should handle complex mixed content", () => {
+    it('should handle complex mixed content', () => {
       const markdown = `# Title
 
 **Bold text** and *italic text*
@@ -266,50 +266,50 @@ describe("markdownToSocialText", () => {
 
 [Link](https://example.com)`;
       const result = markdownToSocialText(markdown);
-      expect(result).not.toContain("#");
-      expect(result).not.toContain("**");
-      expect(result).not.toContain("*");
-      expect(result).not.toContain("\`\`\`");
-      expect(result).toContain("•");
-      expect(result).toContain("const x = 1;");
+      expect(result).not.toContain('#');
+      expect(result).not.toContain('**');
+      expect(result).not.toContain('*');
+      expect(result).not.toContain('```');
+      expect(result).toContain('•');
+      expect(result).toContain('const x = 1;');
     });
 
-    it("should handle text with special characters", () => {
-      const markdown = "Text with @mentions #hashes \$dollars %percent";
+    it('should handle text with special characters', () => {
+      const markdown = 'Text with @mentions #hashes $dollars %percent';
       const result = markdownToSocialText(markdown);
-      expect(result).toContain("@mentions");
-      expect(result).toContain("#hashes");
-      expect(result).toContain("\$dollars");
-      expect(result).toContain("%percent");
+      expect(result).toContain('@mentions');
+      expect(result).toContain('#hashes');
+      expect(result).toContain('$dollars');
+      expect(result).toContain('%percent');
     });
 
-    it("should preserve numbers in bold conversion", () => {
-      const markdown = "**Version 2.0**";
+    it('should preserve numbers in bold conversion', () => {
+      const markdown = '**Version 2.0**';
       const result = markdownToSocialText(markdown);
-      expect(result).toContain("𝟐");
-      expect(result).toContain("𝟎");
+      expect(result).toContain('𝟐');
+      expect(result).toContain('𝟎');
     });
 
-    it("should handle multiple paragraphs", () => {
-      const markdown = "Para 1\n\nPara 2\n\nPara 3";
+    it('should handle multiple paragraphs', () => {
+      const markdown = 'Para 1\n\nPara 2\n\nPara 3';
       const result = markdownToSocialText(markdown);
-      expect(result).toContain("Para 1");
-      expect(result).toContain("Para 2");
-      expect(result).toContain("Para 3");
+      expect(result).toContain('Para 1');
+      expect(result).toContain('Para 2');
+      expect(result).toContain('Para 3');
     });
   });
 
-  describe("platform parameter", () => {
-    it("should accept platform parameter (linkedin)", () => {
-      const markdown = "# Test";
-      const result = markdownToSocialText(markdown, "standard", "linkedin");
-      expect(result).toContain("𝐓");
+  describe('style parameter', () => {
+    it('should work with standard style', () => {
+      const markdown = '# Test';
+      const result = markdownToSocialText(markdown, 'standard');
+      expect(result).toContain('𝐓');
     });
 
-    it("should work with default platform parameter", () => {
-      const markdown = "# Test";
-      const result = markdownToSocialText(markdown, "standard");
-      expect(result).toContain("𝐓");
+    it('should work with bullet-optimized style', () => {
+      const markdown = '- Test item';
+      const result = markdownToSocialText(markdown, 'bullet-optimized');
+      expect(result).toContain('✅');
     });
   });
 });

@@ -7,7 +7,7 @@ interface BlueskyPostProps {
 
 export const BlueskyPost: React.FC<BlueskyPostProps> = ({ contentText }) => {
   return (
-    <article className="bluesky-post" role="article" aria-label="Bluesky post preview">
+    <article className="bluesky-post" aria-label="Bluesky post preview">
       <header className="bluesky-header">
         <div className="bluesky-avatar" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="currentColor">

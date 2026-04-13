@@ -1,7 +1,7 @@
-import type { Assertion, AsymmetricMatchersContaining } from 'vitest';
+import type { AsymmetricMatchersContaining } from 'vitest';
 
 declare module 'vitest' {
-  interface Assertion<T = any> extends AsymmetricMatchersContaining {
+  interface Assertion<_T = unknown> extends AsymmetricMatchersContaining {
     toBeInTheDocument(): void;
     toHaveClass(className: string): void;
     toHaveTextContent(text: string | RegExp): void;
@@ -13,7 +13,7 @@ declare module 'vitest' {
     toBeVisible(): void;
     toBeHidden(): void;
     toHaveAttribute(attr: string, value?: string): void;
-    toHaveStyle(style: Record<string, any>): void;
+    toHaveStyle(style: Record<string, unknown>): void;
     toHaveFocus(): void;
     toContainElement(element: HTMLElement): void;
     toContainHTML(html: string): void;

@@ -10,38 +10,43 @@ interface StyleModalProps {
   setFormatStyle: (style: string) => void;
 }
 
-export const StyleModal: React.FC<StyleModalProps> = ({ isOpen, onClose, formatStyle, setFormatStyle }) => {
+export const StyleModal: React.FC<StyleModalProps> = ({
+  isOpen,
+  onClose,
+  formatStyle,
+  setFormatStyle,
+}) => {
   const { modalRef } = useModalAccessibility({ isOpen, onClose });
 
   if (!isOpen) return null;
 
   return (
-    <div 
-      className="modal-overlay" 
+    <div
+      className="modal-overlay"
       role="presentation"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div 
+      <div
         ref={modalRef}
-        className="modal-content" 
-        role="dialog" 
+        className="modal-content"
+        role="dialog"
         aria-modal="true"
         aria-labelledby="style-modal-title"
       >
         <h2 id="style-modal-title">Template & Style Settings</h2>
-        
+
         <fieldset className="style-options">
           <legend className="visually-hidden">Select formatting style</legend>
-          
+
           <label className={classNames('style-option', { active: formatStyle === 'standard' })}>
-            <input 
-              type="radio" 
+            <input
+              type="radio"
               name="format-style"
-              value="standard" 
-              checked={formatStyle === 'standard'} 
-              onChange={() => setFormatStyle('standard')} 
+              value="standard"
+              checked={formatStyle === 'standard'}
+              onChange={() => setFormatStyle('standard')}
               aria-describedby="style-standard-desc"
             />
             <div>
@@ -50,12 +55,14 @@ export const StyleModal: React.FC<StyleModalProps> = ({ isOpen, onClose, formatS
             </div>
           </label>
 
-          <label className={classNames('style-option', { active: formatStyle === 'bullet-optimized' })}>
-            <input 
-              type="radio" 
+          <label
+            className={classNames('style-option', { active: formatStyle === 'bullet-optimized' })}
+          >
+            <input
+              type="radio"
               name="format-style"
-              value="bullet-optimized" 
-              checked={formatStyle === 'bullet-optimized'} 
+              value="bullet-optimized"
+              checked={formatStyle === 'bullet-optimized'}
               onChange={() => setFormatStyle('bullet-optimized')}
               aria-describedby="style-bullet-desc"
             />
@@ -66,11 +73,11 @@ export const StyleModal: React.FC<StyleModalProps> = ({ isOpen, onClose, formatS
           </label>
 
           <label className={classNames('style-option', { active: formatStyle === 'bold-headers' })}>
-            <input 
-              type="radio" 
+            <input
+              type="radio"
               name="format-style"
-              value="bold-headers" 
-              checked={formatStyle === 'bold-headers'} 
+              value="bold-headers"
+              checked={formatStyle === 'bold-headers'}
               onChange={() => setFormatStyle('bold-headers')}
               aria-describedby="style-bold-desc"
             />

@@ -16,7 +16,7 @@ export const RedditPost: React.FC<RedditPostProps> = ({ contentText }) => {
   const commentCount = 0;
 
   return (
-    <article className="reddit-post" role="article" aria-label="Reddit post preview">
+    <article className="reddit-post" aria-label="Reddit post preview">
       <div className="reddit-vote-column">
         <button className="reddit-vote-btn reddit-upvote" aria-label="Upvote" disabled>
           <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">

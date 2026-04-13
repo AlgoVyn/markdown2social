@@ -122,7 +122,13 @@ describe('LivePreview', () => {
     });
 
     it('should show link warning when content contains URLs', () => {
-      render(<LivePreview {...defaultProps} platform="instagram" contentText="Check https://example.com" />);
+      render(
+        <LivePreview
+          {...defaultProps}
+          platform="instagram"
+          contentText="Check https://example.com"
+        />
+      );
 
       expect(screen.getByText(/Links in Instagram captions are not clickable/)).toBeInTheDocument();
     });
@@ -176,7 +182,9 @@ describe('LivePreview', () => {
     });
 
     it('should highlight hashtags', () => {
-      render(<LivePreview {...defaultProps} platform="youtube" contentText="Check out #vlog #tutorial" />);
+      render(
+        <LivePreview {...defaultProps} platform="youtube" contentText="Check out #vlog #tutorial" />
+      );
 
       // Hashtags appear both in text and in pill form
       const hashtags = screen.getAllByText(/#vlog/);

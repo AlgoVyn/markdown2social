@@ -54,11 +54,11 @@ describe('PLATFORM_CONFIGS', () => {
   it('should correctly identify platform features', () => {
     // Instagram doesn't support links (only in bio)
     expect(PLATFORM_CONFIGS.instagram.supportsLinks).toBe(false);
-    
+
     // Discord and Reddit don't support hashtags
     expect(PLATFORM_CONFIGS.discord.supportsHashtags).toBe(false);
     expect(PLATFORM_CONFIGS.reddit.supportsHashtags).toBe(false);
-    
+
     // All platforms should support bold/italic (via Unicode)
     Object.values(PLATFORM_CONFIGS).forEach((config: PlatformConfig) => {
       expect(config.supportsBold).toBe(true);
@@ -182,13 +182,13 @@ describe('getCharacterCountStatus', () => {
 
   it('should handle different platforms correctly', () => {
     const text = 'a'.repeat(500);
-    
+
     const twitterStatus = getCharacterCountStatus(text, 'twitter');
     expect(twitterStatus.isOver).toBe(true); // 500 > 280
-    
+
     const linkedinStatus = getCharacterCountStatus(text, 'linkedin');
     expect(linkedinStatus.isOver).toBe(false); // 500 < 3000
-    
+
     const mastodonStatus = getCharacterCountStatus(text, 'mastodon');
     expect(mastodonStatus.isOver).toBe(false); // 500 = 500
   });

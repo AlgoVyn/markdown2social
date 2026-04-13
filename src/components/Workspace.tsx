@@ -6,6 +6,7 @@ import { CharacterCounter } from './CharacterCounter';
 import { StyleModal } from './StyleModal';
 import { HistoryModal } from './HistoryModal';
 import { ToastContainer } from './Toast';
+import { ErrorBoundary } from './ErrorBoundary';
 import { markdownToSocialText } from '../utils/markdownParser';
 import { useHistory } from '../hooks/useHistory';
 import { useToast } from '../hooks/useToast';
@@ -18,13 +19,13 @@ export const Workspace: React.FC = () => {
   const [formatStyle, setFormatStyle] = useState<string>('standard');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
-  const { drafts, saveDraft } = useHistory();
+  const { drafts, saveDraft, loadError, clearLoadError } = useHistory();
   const { toasts, addToast, removeToast } = useToast();
 
   // Memoize the parsed markdown to avoid recomputation
   const socialPreview = useMemo(() => {
-    return markdownToSocialText(markdown, formatStyle, platform);
-  }, [markdown, formatStyle, platform]);
+    return markdownToSocialText(markdown, formatStyle);
+  }, [markdown, formatStyle]);
 
   useEffect(() => {
     // Auto-save debounced roughly
@@ -33,6 +34,14 @@ export const Workspace: React.FC = () => {
     }, 2000);
     return () => clearTimeout(timeout);
   }, [markdown, saveDraft]);
+
+  // Show toast when localStorage error occurs
+  useEffect(() => {
+    if (loadError) {
+      addToast(loadError, 'error');
+      clearLoadError();
+    }
+  }, [loadError, clearLoadError, addToast]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -52,7 +61,7 @@ export const Workspace: React.FC = () => {
       // Use the memoized socialPreview value instead of recalculating
       await navigator.clipboard.writeText(socialPreview);
       addToast('Copied to clipboard! Paste into LinkedIn to see formatted content.', 'success');
-    } catch (e) {
+    } catch {
       addToast('Failed to copy to clipboard', 'error');
     }
   };
@@ -80,8 +89,17 @@ export const Workspace: React.FC = () => {
           <MarkdownEditor value={markdown} onChange={setMarkdown} />
         </div>
         <div className="pane right-pane">
-          <LivePreview contentText={socialPreview} platform={platform} />
-          <CharacterCounter text={socialPreview} platform={platform} />
+          <ErrorBoundary
+            fallback={
+              <div className="error-boundary" role="alert">
+                <h2>Preview Error</h2>
+                <p>Unable to render preview. Please check your markdown syntax.</p>
+              </div>
+            }
+          >
+            <LivePreview contentText={socialPreview} platform={platform} />
+            <CharacterCounter text={socialPreview} platform={platform} />
+          </ErrorBoundary>
         </div>
       </div>
       <StyleModal

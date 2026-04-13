@@ -10,7 +10,7 @@ export const InstagramPost: React.FC<InstagramPostProps> = ({ contentText }) => 
   const hasLinks = /https?:\/\/[^\s]+/.test(contentText);
 
   return (
-    <article className="instagram-post" role="article" aria-label="Instagram post preview">
+    <article className="instagram-post" aria-label="Instagram post preview">
       <header className="instagram-header">
         <div className="instagram-avatar-ring">
           <div className="instagram-avatar">

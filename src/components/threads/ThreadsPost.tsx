@@ -11,7 +11,7 @@ export const ThreadsPost: React.FC<ThreadsPostProps> = ({ contentText }) => {
   const isOverLimit = charCount > 500;
 
   return (
-    <article className="threads-post" role="article" aria-label="Threads post preview">
+    <article className="threads-post" aria-label="Threads post preview">
       <header className="threads-header">
         <div className="threads-avatar" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="currentColor">
