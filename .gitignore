@@ -80,7 +80,7 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
+# dist - intentionally kept for GitHub Pages deployment
 
 # Gatsby files
 .cache/

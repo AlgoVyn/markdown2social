@@ -122,14 +122,15 @@ describe('Platform Workflow Integration', () => {
   it('should handle all supported platforms in dropdown', async () => {
     render(<Workspace />);
 
-    const select = screen.getByLabelText('Social media platform');
+    // Verify platform dropdown exists and has options
+    screen.getByLabelText('Social media platform');
     const options = screen.getAllByRole('option');
 
     // Should have multiple platforms
     expect(options.length).toBeGreaterThanOrEqual(9);
 
     // Each option should have platform name and character count
-    options.forEach(option => {
+    options.forEach((option) => {
       expect(option.textContent).toMatch(/\d+,?\d* chars/);
     });
   }, 10000);

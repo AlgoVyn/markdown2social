@@ -1,8 +1,8 @@
-import "@testing-library/jest-dom";
-import { vi } from "vitest";
+import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 
 // Mock matchMedia
-Object.defineProperty(window, "matchMedia", {
+Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: vi.fn().mockImplementation((query: string) => ({
     matches: false,
@@ -23,12 +23,12 @@ const localStorageMock = {
   removeItem: vi.fn(),
   clear: vi.fn(),
 };
-Object.defineProperty(window, "localStorage", {
+Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
 });
 
 // Mock clipboard
-Object.defineProperty(navigator, "clipboard", {
+Object.defineProperty(navigator, 'clipboard', {
   value: {
     writeText: vi.fn(),
     readText: vi.fn(),
@@ -40,13 +40,16 @@ window.alert = vi.fn();
 
 // Mock getClientRects for CodeMirror
 const originalCreateRange = document.createRange.bind(document);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (document as any).createRange = () => {
   const range = originalCreateRange();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (range as any).getClientRects = () => ({
     length: 0,
     item: () => null,
     [Symbol.iterator]: function* () {},
   });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (range as any).getBoundingClientRect = () => ({
     top: 0,
     left: 0,
@@ -56,13 +59,13 @@ const originalCreateRange = document.createRange.bind(document);
     height: 0,
     x: 0,
     y: 0,
-    toJSON: () => "",
+    toJSON: () => '',
   });
   return range;
 };
 
 // Mock getSelection for CodeMirror
-Object.defineProperty(window, "getSelection", {
+Object.defineProperty(window, 'getSelection', {
   writable: true,
   value: vi.fn().mockReturnValue({
     getRangeAt: vi.fn().mockReturnValue({

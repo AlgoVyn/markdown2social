@@ -7,7 +7,7 @@ interface MastodonPostProps {
 
 export const MastodonPost: React.FC<MastodonPostProps> = ({ contentText }) => {
   return (
-    <article className="mastodon-post" role="article" aria-label="Mastodon post preview">
+    <article className="mastodon-post" aria-label="Mastodon post preview">
       <header className="mastodon-header">
         <div className="mastodon-avatar" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="currentColor">

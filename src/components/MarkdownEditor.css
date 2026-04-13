@@ -19,7 +19,9 @@
 
 /* Ensure codemirror doesn't clash with dark mode by forcing our vars if needed, but uiw handles themes */
 .cm-scroller {
-  font-family: 'JetBrains Mono', 'Fira Code', source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-family:
+    'JetBrains Mono', 'Fira Code', source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
   padding: 1.5rem 1rem;
   line-height: 1.6;
 }
