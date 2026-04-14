@@ -41,11 +41,11 @@
     <meta name="color-scheme" content="light dark" />
 
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://algovyn.github.io/markdown2social/" />
+    <link rel="canonical" href="https://algovyn.com/markdown2social/" />
 
     <!-- Alternate Language (for future internationalization) -->
-    <link rel="alternate" hreflang="en" href="https://algovyn.github.io/markdown2social/" />
-    <link rel="alternate" hreflang="x-default" href="https://algovyn.github.io/markdown2social/" />
+    <link rel="alternate" hreflang="en" href="https://algovyn.com/markdown2social/" />
+    <link rel="alternate" hreflang="x-default" href="https://algovyn.com/markdown2social/" />
 
     <!-- Favicon & Icons -->
     <link rel="icon" type="image/svg+xml" href="/markdown2social/logo/logo.svg" />
@@ -55,11 +55,14 @@
     <link rel="mask-icon" href="/markdown2social/logo/logo.svg" color="#007acc" />
     <link rel="manifest" href="/markdown2social/manifest.json" />
 
-    <!-- Preconnect to External Domains -->
+    <!-- Preconnect to External Domains for Performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+
+    <!-- Preconnect to Cloudflare Pages domain -->
+    <link rel="preconnect" href="https://algovyn.com" />
 
     <!-- Preload Critical Resources -->
     <link
@@ -68,6 +71,11 @@
       as="style"
     />
     <link rel="preload" href="/markdown2social/logo/logo.svg" as="image" type="image/svg+xml" />
+    <link rel="preload" href="/markdown2social/logo/og-image.png" as="image" type="image/png" />
+
+    <!-- Prefetch Important Resources for Next Navigation -->
+    <link rel="prefetch" href="/markdown2social/sitemap.xml" />
+    <link rel="prefetch" href="/markdown2social/manifest.json" />
 
     <!-- Fonts -->
     <link
@@ -77,7 +85,7 @@
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://algovyn.github.io/markdown2social/" />
+    <meta property="og:url" content="https://algovyn.com/markdown2social/" />
     <meta property="og:site_name" content="Markdown2Social" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:title" content="Markdown2Social - Free Markdown to Social Media Converter" />
@@ -85,27 +93,28 @@
       property="og:description"
       content="Free online tool to convert Markdown to perfectly formatted social media posts for Twitter/X, LinkedIn, Instagram, Mastodon, Bluesky, Reddit, YouTube, Discord, Facebook, TikTok, Telegram, and Threads. Preview and copy with one click."
     />
-    <meta
-      property="og:image"
-      content="https://algovyn.github.io/markdown2social/logo/og-image.svg"
-    />
+    <!-- OG Image: PNG for better compatibility, SVG as alternative -->
+    <meta property="og:image" content="https://algovyn.com/markdown2social/logo/og-image.png" />
     <meta
       property="og:image:secure_url"
-      content="https://algovyn.github.io/markdown2social/logo/og-image.svg"
+      content="https://algovyn.com/markdown2social/logo/og-image.png"
     />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:type" content="image/svg+xml" />
+    <meta property="og:image:type" content="image/png" />
     <meta
       property="og:image:alt"
       content="Markdown2Social - Convert Markdown to Social Media Posts"
     />
+    <!-- Alternative SVG version for modern platforms -->
+    <meta property="og:image" content="https://algovyn.com/markdown2social/logo/og-image.svg" />
+    <meta property="og:image:type" content="image/svg+xml" />
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@markdown2social" />
     <meta name="twitter:creator" content="@markdown2social" />
-    <meta name="twitter:url" content="https://algovyn.github.io/markdown2social/" />
+    <meta name="twitter:url" content="https://algovyn.com/markdown2social/" />
     <meta
       name="twitter:title"
       content="Markdown2Social - Free Markdown to Social Media Converter"
@@ -114,10 +123,7 @@
       name="twitter:description"
       content="Free online tool to convert Markdown to perfectly formatted social media posts. Preview and copy for Twitter, LinkedIn, Instagram, Mastodon, and more."
     />
-    <meta
-      name="twitter:image"
-      content="https://algovyn.github.io/markdown2social/logo/og-image.svg"
-    />
+    <meta name="twitter:image" content="https://algovyn.com/markdown2social/logo/og-image.png" />
     <meta
       name="twitter:image:alt"
       content="Markdown2Social - Convert Markdown to Social Media Posts"
@@ -137,7 +143,7 @@
         "@context": "https://schema.org",
         "@type": "WebApplication",
         "name": "Markdown2Social",
-        "url": "https://algovyn.github.io/markdown2social/",
+        "url": "https://algovyn.com/markdown2social/",
         "applicationCategory": "UtilitiesApplication",
         "operatingSystem": "Any",
         "browserRequirements": "Requires JavaScript. Requires HTML5.",
@@ -155,31 +161,31 @@
         "featureList": "Markdown parsing, Social media preview, One-click copy, Multi-platform support, Character counting, Thread splitting, Draft history, Unicode text formatting",
         "softwareVersion": "1.0.0",
         "fileSize": "2MB",
-        "downloadUrl": "https://algovyn.github.io/markdown2social/",
+        "downloadUrl": "https://algovyn.com/markdown2social/",
         "screenshot": {
           "@type": "ImageObject",
-          "url": "https://algovyn.github.io/markdown2social/logo/og-image.svg",
-          "width": 1200,
-          "height": 630
+          "url": "https://algovyn.com/markdown2social/logo/screenshot-wide.png",
+          "width": 1280,
+          "height": 720
         },
         "author": {
           "@type": "Organization",
           "name": "Markdown2Social",
-          "url": "https://algovyn.github.io/markdown2social/"
+          "url": "https://algovyn.com/markdown2social/"
         },
         "publisher": {
           "@type": "Organization",
           "name": "Markdown2Social",
           "logo": {
             "@type": "ImageObject",
-            "url": "https://algovyn.github.io/markdown2social/logo/logo.svg"
+            "url": "https://algovyn.com/markdown2social/logo/logo.svg"
           }
         },
         "potentialAction": {
           "@type": "UseAction",
           "target": {
             "@type": "EntryPoint",
-            "urlTemplate": "https://algovyn.github.io/markdown2social/{platform}",
+            "urlTemplate": "https://algovyn.com/markdown2social/{platform}",
             "actionPlatform": [
               "http://schema.org/DesktopWebPlatform",
               "http://schema.org/MobileWebPlatform"
@@ -216,8 +222,8 @@
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": "Markdown2Social",
-        "url": "https://algovyn.github.io/markdown2social/",
-        "logo": "https://algovyn.github.io/markdown2social/logo/logo.svg",
+        "url": "https://algovyn.com/markdown2social/",
+        "logo": "https://algovyn.com/markdown2social/logo/logo.svg",
         "sameAs": ["https://twitter.com/markdown2social"]
       }
     </script>
@@ -228,15 +234,99 @@
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "Markdown2Social",
-        "url": "https://algovyn.github.io/markdown2social/",
+        "url": "https://algovyn.com/markdown2social/",
         "potentialAction": {
           "@type": "SearchAction",
           "target": {
             "@type": "EntryPoint",
-            "urlTemplate": "https://algovyn.github.io/markdown2social/?search={search_term_string}"
+            "urlTemplate": "https://algovyn.com/markdown2social/?search={search_term_string}"
           },
           "query-input": "required name=search_term_string"
         }
+      }
+    </script>
+
+    <!-- BreadcrumbList Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://algovyn.com/markdown2social/"
+          }
+        ]
+      }
+    </script>
+
+    <!-- NOTE: This FAQ data is duplicated in src/components/SEO.tsx for client-side hydration.
+         When updating FAQs, make sure to update BOTH locations. -->
+    <!-- FAQPage Structured Data for Rich Snippets -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is Markdown2Social?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Markdown2Social is a free online tool that converts Markdown formatting into styled text for social media platforms. It supports LinkedIn, Twitter/X, Instagram, Mastodon, Bluesky, Reddit, YouTube, Discord, Facebook, TikTok, Telegram, and Threads."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I convert Markdown to social media posts?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Simply write your content using Markdown syntax (like **bold** or _italic_) in the editor, select your target platform, and click Copy. The formatted text is automatically generated and ready to paste into your social media platform."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which social media platforms are supported?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Markdown2Social supports 12+ platforms including LinkedIn, Twitter/X (with thread splitting), Instagram, Threads, Mastodon, Bluesky, Discord, Reddit, YouTube, Facebook, TikTok, and Telegram. Each platform has accurate character limits and formatting options."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is Markdown2Social free to use?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, Markdown2Social is completely free to use. All processing happens client-side in your browser, so your content never leaves your device. No signup or account required."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does it support Twitter/X threads?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes! When you exceed Twitter's 280 character limit, Markdown2Social automatically splits your content into a thread. The preview shows each post with navigation arrows so you can copy individual posts in sequence."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What formatting options are available?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The tool supports bold (**text**), italic (_text_ or *text*), strikethrough (~text~), code (`code` or ```code blocks```), lists (- items), numbered lists (1. items), links ([text](url)), and headers (# Header)."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I save my drafts?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes! Markdown2Social automatically saves your drafts with timestamps to your browser's local storage. You can access your history anytime and restore previous versions with one click."
+            }
+          }
+        ]
       }
     </script>
   </head>

@@ -1,5 +1,5 @@
 # robots.txt for Markdown2Social
-# https://algovyn.github.io/markdown2social/
+# https://algovyn.com/markdown2social/
 
 User-agent: *
 Allow: /
@@ -12,7 +12,7 @@ Disallow: /node_modules/
 Disallow: /.git/
 
 # Sitemap location
-Sitemap: https://algovyn.github.io/markdown2social/sitemap.xml
+Sitemap: https://algovyn.com/markdown2social/sitemap.xml
 
 # Googlebot specific
 User-agent: Googlebot
@@ -59,7 +59,7 @@ Allow: /
 Allow: /logo/
 
 # Host directive (for Yandex)
-Host: https://algovyn.github.io
+Host: https://algovyn.com
 
 # Note: Crawl-delay is not supported by Google and can hurt crawl efficiency
 # We rely on proper sitemap and canonical URLs instead

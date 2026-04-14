@@ -1,15 +1,15 @@
 # Security Policy for Markdown2Social
-# https://algovyn.github.io/markdown2social/
+# https://algovyn.com/markdown2social/
 
 # Contact via GitHub Security Advisories
 Contact: https://github.com/algovyn/markdown2social/security/advisories
 Expires: 2027-04-14T00:00:00.000Z
 
-Acknowledgments: https://algovyn.github.io/markdown2social/humans.txt
+Acknowledgments: https://algovyn.com/markdown2social/humans.txt
 
 Preferred-Languages: en
 
-Canonical: https://algovyn.github.io/markdown2social/.well-known/security.txt
+Canonical: https://algovyn.com/markdown2social/.well-known/security.txt
 Policy: https://github.com/algovyn/markdown2social/security/policy
 
 # This is a static web application with no server-side processing

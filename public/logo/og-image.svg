@@ -22,8 +22,8 @@
   <circle cx="100" cy="100" r="150" fill="rgba(255,255,255,0.05)" />
   <circle cx="1100" cy="530" r="200" fill="rgba(255,255,255,0.03)" />
   
-  <!-- Logo Group (centered) -->
-  <g transform="translate(180, 215) scale(2)" stroke="#ffffff" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Logo Group (left side) -->
+  <g transform="translate(60, 160) scale(2)" stroke="#ffffff" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round">
     <path d="M 100 41 L 100 113 M 72 85 L 100 113 L 128 85" />
     <g mask="url(#ring-holes)">
       <path d="M 44 113 C 64 113, 85 131, 100 147" />
@@ -35,13 +35,13 @@
   </g>
   
   <!-- Title -->
-  <text x="600" y="320" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="700" fill="#ffffff" text-anchor="middle">Markdown2Social</text>
+  <text x="780" y="270" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="700" fill="#ffffff" text-anchor="middle">Markdown2Social</text>
   
   <!-- Subtitle -->
-  <text x="600" y="390" font-family="system-ui, -apple-system, sans-serif" font-size="32" font-weight="400" fill="rgba(255,255,255,0.9)" text-anchor="middle">Convert Markdown to Social Media Posts</text>
+  <text x="780" y="340" font-family="system-ui, -apple-system, sans-serif" font-size="32" font-weight="400" fill="rgba(255,255,255,0.9)" text-anchor="middle">Convert Markdown to Social Media Posts</text>
   
   <!-- Platform badges -->
-  <g transform="translate(600, 480)" text-anchor="middle">
+  <g transform="translate(780, 430)" text-anchor="middle">
     <text x="0" y="0" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="500" fill="rgba(255,255,255,0.7)">LinkedIn • Twitter/X • Instagram • Threads • Mastodon • Bluesky</text>
     <text x="0" y="28" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="500" fill="rgba(255,255,255,0.7)">Discord • Reddit • YouTube • Facebook • TikTok • Telegram</text>
   </g>

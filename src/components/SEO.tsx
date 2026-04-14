@@ -102,11 +102,77 @@ const DEFAULT_SEO = {
 };
 
 // Base URL configurable via environment variable
-const BASE_URL = import.meta.env.VITE_BASE_URL || 'https://algovyn.github.io/markdown2social';
+const BASE_URL = import.meta.env.VITE_BASE_URL || 'https://algovyn.com/markdown2social';
 
 // OG Image dimensions for better social sharing
 const OG_IMAGE_WIDTH = '1200';
 const OG_IMAGE_HEIGHT = '630';
+
+// NOTE: This FAQ data is duplicated in index.html for server-side rendering.
+// When updating FAQs, make sure to update BOTH locations.
+// FAQ structured data for rich snippets
+const FAQ_STRUCTURED_DATA = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'What is Markdown2Social?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Markdown2Social is a free online tool that converts Markdown formatting into styled text for social media platforms. It supports LinkedIn, Twitter/X, Instagram, Mastodon, Bluesky, Reddit, YouTube, Discord, Facebook, TikTok, Telegram, and Threads.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'How do I convert Markdown to social media posts?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Simply write your content using Markdown syntax (like **bold** or _italic_) in the editor, select your target platform, and click Copy. The formatted text is automatically generated and ready to paste into your social media platform.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Which social media platforms are supported?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Markdown2Social supports 12+ platforms including LinkedIn, Twitter/X (with thread splitting), Instagram, Threads, Mastodon, Bluesky, Discord, Reddit, YouTube, Facebook, TikTok, and Telegram. Each platform has accurate character limits and formatting options.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Is Markdown2Social free to use?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Yes, Markdown2Social is completely free to use. All processing happens client-side in your browser, so your content never leaves your device. No signup or account required.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Does it support Twitter/X threads?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: "Yes! When you exceed Twitter's 280 character limit, Markdown2Social automatically splits your content into a thread. The preview shows each post with navigation arrows so you can copy individual posts in sequence.",
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'What formatting options are available?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'The tool supports bold (**text**), italic (_text_ or *text*), strikethrough (~text~), code (`code` or ```code blocks```), lists (- items), numbered lists (1. items), links ([text](url)), and headers (# Header).',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Can I save my drafts?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: "Yes! Markdown2Social automatically saves your drafts with timestamps to your browser's local storage. You can access your history anytime and restore previous versions with one click.",
+      },
+    },
+  ],
+};
 
 export const SEO: React.FC<SEOProps> = ({ platform }) => {
   const config = PLATFORM_CONFIGS[platform];
@@ -169,11 +235,12 @@ export const SEO: React.FC<SEOProps> = ({ platform }) => {
     updateMetaTag('og:title', seo.title, true);
     updateMetaTag('og:description', seo.description, true);
     updateMetaTag('og:url', canonicalUrl, true);
-    updateMetaTag('og:image', `${BASE_URL}/logo/og-image.svg`, true);
-    updateMetaTag('og:image:secure_url', `${BASE_URL}/logo/og-image.svg`, true);
+    // Use PNG for better social platform compatibility
+    updateMetaTag('og:image', `${BASE_URL}/logo/og-image.png`, true);
+    updateMetaTag('og:image:secure_url', `${BASE_URL}/logo/og-image.png`, true);
     updateMetaTag('og:image:width', OG_IMAGE_WIDTH, true);
     updateMetaTag('og:image:height', OG_IMAGE_HEIGHT, true);
-    updateMetaTag('og:image:type', 'image/svg+xml', true);
+    updateMetaTag('og:image:type', 'image/png', true);
     updateMetaTag(
       'og:image:alt',
       `${config?.name || 'Markdown2Social'} - Convert Markdown to Social Media Posts`,
@@ -185,7 +252,8 @@ export const SEO: React.FC<SEOProps> = ({ platform }) => {
     updateMetaTag('twitter:title', seo.title, true);
     updateMetaTag('twitter:description', seo.description, true);
     updateMetaTag('twitter:url', canonicalUrl, true);
-    updateMetaTag('twitter:image', `${BASE_URL}/logo/og-image.svg`, true);
+    // Use PNG for better Twitter card compatibility
+    updateMetaTag('twitter:image', `${BASE_URL}/logo/og-image.png`, true);
     // Twitter image alt must use "name" attribute, not "property"
     updateMetaTag(
       'twitter:image:alt',
@@ -240,13 +308,66 @@ export const SEO: React.FC<SEOProps> = ({ platform }) => {
       },
       image: {
         '@type': 'ImageObject',
-        url: `${BASE_URL}/logo/og-image.svg`,
+        url: `${BASE_URL}/logo/og-image.png`,
         width: OG_IMAGE_WIDTH,
         height: OG_IMAGE_HEIGHT,
       },
     };
 
     jsonLdScript.textContent = JSON.stringify(structuredData);
+
+    // Update FAQ structured data (only for home/default page)
+    let faqScript = document.querySelector(
+      'script[data-seo-faq="true"]'
+    ) as HTMLScriptElement | null;
+    if (platform === 'default') {
+      if (!faqScript) {
+        faqScript = document.createElement('script');
+        faqScript.setAttribute('type', 'application/ld+json');
+        faqScript.setAttribute('data-seo-faq', 'true');
+        faqScript.setAttribute('data-seo-dynamic', 'true');
+        document.head.appendChild(faqScript);
+      }
+      faqScript.textContent = JSON.stringify(FAQ_STRUCTURED_DATA);
+    } else if (faqScript) {
+      faqScript.remove();
+    }
+
+    // Update BreadcrumbList structured data
+    let breadcrumbScript = document.querySelector(
+      'script[data-seo-breadcrumb="true"]'
+    ) as HTMLScriptElement | null;
+    if (!breadcrumbScript) {
+      breadcrumbScript = document.createElement('script');
+      breadcrumbScript.setAttribute('type', 'application/ld+json');
+      breadcrumbScript.setAttribute('data-seo-breadcrumb', 'true');
+      breadcrumbScript.setAttribute('data-seo-dynamic', 'true');
+      document.head.appendChild(breadcrumbScript);
+    }
+
+    const breadcrumbData = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: `${BASE_URL}/`,
+        },
+        ...(platform !== 'default'
+          ? [
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: config?.name || 'Platform',
+                item: canonicalUrl,
+              },
+            ]
+          : []),
+      ],
+    };
+    breadcrumbScript.textContent = JSON.stringify(breadcrumbData);
 
     // Cleanup function - remove ALL dynamically created elements
     // This prevents orphaned elements when platform changes rapidly
