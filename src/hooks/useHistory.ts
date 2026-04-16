@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { generateId } from '../utils/id';
 
 export interface Draft {
   id: string;
@@ -12,15 +13,6 @@ export interface UseHistoryReturn {
   loadError: string | null;
   clearLoadError: () => void;
 }
-
-// Generate unique ID with fallback for older browsers
-const generateId = (): string => {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  // Fallback for older browsers
-  return Math.random().toString(36).substring(2) + Date.now().toString(36);
-};
 
 // Calculate approximate size of draft data in bytes
 const calculateDraftSize = (drafts: Draft[]): number => {

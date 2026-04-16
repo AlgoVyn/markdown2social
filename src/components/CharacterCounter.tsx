@@ -8,33 +8,30 @@ interface CharacterCounterProps {
   className?: string;
 }
 
+const RADIUS = 18;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
 export const CharacterCounter: React.FC<CharacterCounterProps> = ({
   text,
   platform,
   className = '',
 }) => {
-  const status = getCharacterCountStatus(text, platform);
+  const { count, limit, percentage, isOver, isWarning } = getCharacterCountStatus(text, platform);
 
-  const getStatusClass = () => {
-    if (status.isOver) return 'counter-over';
-    if (status.isWarning) return 'counter-warning';
-    return 'counter-ok';
-  };
-
-  const circumference = 2 * Math.PI * 18;
-  const strokeDashoffset = circumference - Math.min(status.percentage, 1) * circumference;
+  const statusClass = isOver ? 'counter-over' : isWarning ? 'counter-warning' : 'counter-ok';
+  const strokeDashoffset = CIRCUMFERENCE - Math.min(percentage, 1) * CIRCUMFERENCE;
 
   return (
     <div
-      className={`character-counter ${getStatusClass()} ${className}`}
+      className={`character-counter ${statusClass} ${className}`}
       role="status"
       aria-live="polite"
     >
       <div className="counter-display">
         <span className="counter-text">
-          <strong>{status.count}</strong>
+          <strong>{count}</strong>
           <span className="counter-separator">/</span>
-          <span className="counter-limit">{status.limit}</span>
+          <span className="counter-limit">{limit}</span>
         </span>
 
         <svg className="counter-ring" viewBox="0 0 40 40" aria-hidden="true">
@@ -42,7 +39,7 @@ export const CharacterCounter: React.FC<CharacterCounterProps> = ({
             className="counter-ring-bg"
             cx="20"
             cy="20"
-            r="18"
+            r={RADIUS}
             fill="none"
             stroke="currentColor"
             strokeWidth="3"
@@ -51,28 +48,24 @@ export const CharacterCounter: React.FC<CharacterCounterProps> = ({
             className="counter-ring-progress"
             cx="20"
             cy="20"
-            r="18"
+            r={RADIUS}
             fill="none"
             strokeWidth="3"
             strokeLinecap="round"
-            strokeDasharray={circumference}
+            strokeDasharray={CIRCUMFERENCE}
             strokeDashoffset={strokeDashoffset}
             transform="rotate(-90 20 20)"
           />
         </svg>
       </div>
 
-      {status.isOver && (
+      {isOver ? (
         <span className="counter-message" role="alert">
-          Over by {status.count - status.limit} characters
+          Over by {count - limit} characters
         </span>
-      )}
-
-      {status.isWarning && !status.isOver && (
-        <span className="counter-message">
-          {Math.round((1 - status.percentage) * 100)}% remaining
-        </span>
-      )}
+      ) : isWarning ? (
+        <span className="counter-message">{Math.round((1 - percentage) * 100)}% remaining</span>
+      ) : null}
     </div>
   );
 };

@@ -10,6 +10,30 @@ interface StyleModalProps {
   setFormatStyle: (style: string) => void;
 }
 
+const STYLE_OPTIONS = [
+  {
+    value: 'standard',
+    label: 'Standard Professional',
+    description: 'Default parsing for clean, readable posts.',
+    descId: 'style-standard-desc',
+    labelId: 'style-standard-label',
+  },
+  {
+    value: 'bullet-optimized',
+    label: 'Bullet Point Optimized',
+    description: 'Converts lists to checkmarks for better engagement.',
+    descId: 'style-bullet-desc',
+    labelId: 'style-bullet-label',
+  },
+  {
+    value: 'bold-headers',
+    label: 'Bold Headers',
+    description: 'Makes top-level headers extra bold.',
+    descId: 'style-bold-desc',
+    labelId: 'style-bold-label',
+  },
+];
+
 export const StyleModal: React.FC<StyleModalProps> = ({
   isOpen,
   onClose,
@@ -24,9 +48,7 @@ export const StyleModal: React.FC<StyleModalProps> = ({
     <div
       className="modal-overlay"
       role="presentation"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
         ref={modalRef}
@@ -39,53 +61,25 @@ export const StyleModal: React.FC<StyleModalProps> = ({
 
         <fieldset className="style-options">
           <legend className="visually-hidden">Select formatting style</legend>
-
-          <label className={classNames('style-option', { active: formatStyle === 'standard' })}>
-            <input
-              type="radio"
-              name="format-style"
-              value="standard"
-              checked={formatStyle === 'standard'}
-              onChange={() => setFormatStyle('standard')}
-              aria-describedby="style-standard-desc"
-            />
-            <div>
-              <strong id="style-standard-label">Standard Professional</strong>
-              <p id="style-standard-desc">Default parsing for clean, readable posts.</p>
-            </div>
-          </label>
-
-          <label
-            className={classNames('style-option', { active: formatStyle === 'bullet-optimized' })}
-          >
-            <input
-              type="radio"
-              name="format-style"
-              value="bullet-optimized"
-              checked={formatStyle === 'bullet-optimized'}
-              onChange={() => setFormatStyle('bullet-optimized')}
-              aria-describedby="style-bullet-desc"
-            />
-            <div>
-              <strong id="style-bullet-label">Bullet Point Optimized</strong>
-              <p id="style-bullet-desc">Converts lists to checkmarks for better engagement.</p>
-            </div>
-          </label>
-
-          <label className={classNames('style-option', { active: formatStyle === 'bold-headers' })}>
-            <input
-              type="radio"
-              name="format-style"
-              value="bold-headers"
-              checked={formatStyle === 'bold-headers'}
-              onChange={() => setFormatStyle('bold-headers')}
-              aria-describedby="style-bold-desc"
-            />
-            <div>
-              <strong id="style-bold-label">Bold Headers</strong>
-              <p id="style-bold-desc">Makes top-level headers extra bold.</p>
-            </div>
-          </label>
+          {STYLE_OPTIONS.map(({ value, label, description, descId, labelId }) => (
+            <label
+              key={value}
+              className={classNames('style-option', { active: formatStyle === value })}
+            >
+              <input
+                type="radio"
+                name="format-style"
+                value={value}
+                checked={formatStyle === value}
+                onChange={() => setFormatStyle(value)}
+                aria-describedby={descId}
+              />
+              <div>
+                <strong id={labelId}>{label}</strong>
+                <p id={descId}>{description}</p>
+              </div>
+            </label>
+          ))}
         </fieldset>
 
         <div className="modal-actions">

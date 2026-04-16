@@ -9,189 +9,110 @@ export interface PlatformConfig {
   supportsMentions: boolean;
   supportsImages: boolean;
   supportsVideos: boolean;
-  warningThreshold: number; // Percentage at which to show warning
+  warningThreshold: number;
 }
+
+// Default configuration for most platforms
+const DEFAULT_CONFIG: Omit<PlatformConfig, 'name' | 'characterLimit'> = {
+  supportsBold: true,
+  supportsItalic: true,
+  supportsLinks: true,
+  supportsHashtags: true,
+  supportsMentions: true,
+  supportsImages: true,
+  supportsVideos: true,
+  warningThreshold: 0.9,
+};
 
 export const PLATFORM_CONFIGS: Record<string, PlatformConfig> = {
   linkedin: {
     name: 'LinkedIn',
     characterLimit: 3000,
-    supportsBold: true,
-    supportsItalic: true,
-    supportsLinks: true,
-    supportsHashtags: true,
-    supportsMentions: true,
-    supportsImages: true,
-    supportsVideos: true,
+    ...DEFAULT_CONFIG,
     warningThreshold: 0.85,
   },
   twitter: {
     name: 'Twitter/X',
     characterLimit: 280,
-    supportsBold: true, // Unicode bold
-    supportsItalic: true, // Unicode italic
-    supportsLinks: true,
-    supportsHashtags: true,
-    supportsMentions: true,
-    supportsImages: true,
-    supportsVideos: true,
+    ...DEFAULT_CONFIG,
     warningThreshold: 0.9,
   },
   instagram: {
     name: 'Instagram',
     characterLimit: 2200,
-    supportsBold: true,
-    supportsItalic: true,
+    ...DEFAULT_CONFIG,
     supportsLinks: false, // Only in bio
-    supportsHashtags: true,
-    supportsMentions: true,
-    supportsImages: true,
-    supportsVideos: true,
-    warningThreshold: 0.9,
   },
   threads: {
     name: 'Threads',
     characterLimit: 500,
-    supportsBold: true,
-    supportsItalic: true,
-    supportsLinks: true,
-    supportsHashtags: true,
-    supportsMentions: true,
-    supportsImages: true,
-    supportsVideos: true,
-    warningThreshold: 0.9,
+    ...DEFAULT_CONFIG,
   },
   mastodon: {
     name: 'Mastodon',
     characterLimit: 500,
-    supportsBold: true,
-    supportsItalic: true,
-    supportsLinks: true,
-    supportsHashtags: true,
-    supportsMentions: true,
-    supportsImages: true,
-    supportsVideos: true,
-    warningThreshold: 0.9,
+    ...DEFAULT_CONFIG,
   },
   bluesky: {
     name: 'Bluesky',
     characterLimit: 300,
-    supportsBold: true,
-    supportsItalic: true,
-    supportsLinks: true,
-    supportsHashtags: true,
-    supportsMentions: true,
-    supportsImages: true,
-    supportsVideos: true,
+    ...DEFAULT_CONFIG,
     warningThreshold: 0.85,
   },
   discord: {
     name: 'Discord',
     characterLimit: 2000,
-    supportsBold: true,
-    supportsItalic: true,
-    supportsLinks: true,
+    ...DEFAULT_CONFIG,
     supportsHashtags: false,
-    supportsMentions: true,
-    supportsImages: true,
-    supportsVideos: true,
-    warningThreshold: 0.9,
   },
   reddit: {
     name: 'Reddit',
     characterLimit: 40000,
-    supportsBold: true,
-    supportsItalic: true,
-    supportsLinks: true,
+    ...DEFAULT_CONFIG,
     supportsHashtags: false,
-    supportsMentions: true,
-    supportsImages: true,
-    supportsVideos: true,
-    warningThreshold: 0.9,
   },
   youtube: {
     name: 'YouTube',
     characterLimit: 5000,
-    supportsBold: true,
-    supportsItalic: true,
-    supportsLinks: true,
-    supportsHashtags: true,
-    supportsMentions: true,
-    supportsImages: true,
-    supportsVideos: true,
-    warningThreshold: 0.9,
+    ...DEFAULT_CONFIG,
   },
   facebook: {
     name: 'Facebook',
     characterLimit: 63206,
-    supportsBold: true,
-    supportsItalic: true,
-    supportsLinks: true,
-    supportsHashtags: true,
-    supportsMentions: true,
-    supportsImages: true,
-    supportsVideos: true,
-    warningThreshold: 0.9,
+    ...DEFAULT_CONFIG,
   },
   tiktok: {
     name: 'TikTok',
     characterLimit: 2200,
-    supportsBold: true,
-    supportsItalic: true,
-    supportsLinks: true,
-    supportsHashtags: true,
-    supportsMentions: true,
-    supportsImages: true,
-    supportsVideos: true,
-    warningThreshold: 0.9,
+    ...DEFAULT_CONFIG,
   },
   telegram: {
     name: 'Telegram',
     characterLimit: 4096,
-    supportsBold: true,
-    supportsItalic: true,
-    supportsLinks: true,
-    supportsHashtags: true,
-    supportsMentions: true,
-    supportsImages: true,
-    supportsVideos: true,
-    warningThreshold: 0.9,
+    ...DEFAULT_CONFIG,
   },
 };
 
 // Helper function to get platform config
-export const getPlatformConfig = (platform: string): PlatformConfig => {
-  return PLATFORM_CONFIGS[platform] || PLATFORM_CONFIGS.linkedin;
-};
+export const getPlatformConfig = (platform: string): PlatformConfig =>
+  PLATFORM_CONFIGS[platform] || PLATFORM_CONFIGS.linkedin;
 
 // Helper function to calculate character count considering URLs
 export const calculateCharacterCount = (text: string, platform: string): number => {
   const config = getPlatformConfig(platform);
 
   if (!config.supportsLinks) {
-    // For platforms that don't support links, count the full URL text
     return text.length;
   }
 
-  // Twitter/X and some platforms shorten URLs to a fixed length
-  const urlRegex = /https?:\/\/[^\s]+/g;
-  const urls = text.match(urlRegex) || [];
-
+  const urls = text.match(/https?:\/\/[^\s]+/g) || [];
   if (urls.length === 0) {
     return text.length;
   }
 
-  // Twitter counts all URLs as 23 characters (or 24 for https)
-  // For simplicity, we'll use 23 as the URL length for supported platforms
+  // Twitter counts all URLs as 23 characters
   const urlPlaceholderLength = 23;
-  let count = text.length;
-
-  for (const url of urls) {
-    count -= url.length;
-    count += urlPlaceholderLength;
-  }
-
-  return count;
+  return text.length - urls.reduce((sum, url) => sum + url.length - urlPlaceholderLength, 0);
 };
 
 export const getCharacterCountStatus = (

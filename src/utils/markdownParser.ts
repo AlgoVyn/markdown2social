@@ -14,7 +14,7 @@ marked.use(
 );
 
 // CSS styles from highlight.js github theme - inlined for clipboard compatibility
-const cssStyles: Record<string, string> = {
+const CSS_STYLES: Record<string, string> = {
   hljs: 'color:#24292e;background:#ffffff;',
   'hljs-doctag': 'color:#d73a49;',
   'hljs-keyword': 'color:#d73a49;',
@@ -53,21 +53,13 @@ const applyInlineStyles = (html: string): string => {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
 
-  // Apply inline styles to all elements with hljs classes
-  const allElements = doc.querySelectorAll('[class*="hljs"]');
-  allElements.forEach((el) => {
-    const classes = el.className.split(' ');
-    let style = el.getAttribute('style') || '';
-
-    for (const cls of classes) {
-      if (cssStyles[cls] && !style.includes(cssStyles[cls])) {
-        style = style ? style + cssStyles[cls] : cssStyles[cls];
-      }
-    }
-
-    if (style) {
-      el.setAttribute('style', style);
-    }
+  doc.querySelectorAll('[class*="hljs"]').forEach((el) => {
+    const style = el.className
+      .split(' ')
+      .filter((cls) => CSS_STYLES[cls])
+      .map((cls) => CSS_STYLES[cls])
+      .join('');
+    if (style) el.setAttribute('style', style);
   });
 
   return DOMPurify.sanitize(doc.body.innerHTML);
@@ -78,54 +70,44 @@ export const parseMarkdown = (
   style: string = 'standard',
   forClipboard: boolean = false
 ): string => {
-  let processedMarkdown = markdown;
+  let processed = markdown;
 
-  // Apply style transformations
   if (style === 'bullet-optimized') {
-    processedMarkdown = processedMarkdown.replace(/^[-*]\s/gm, '✅ ');
+    processed = processed.replace(/^[-*]\s/gm, '✅ ');
   } else if (style === 'bold-headers') {
-    processedMarkdown = processedMarkdown.replace(/^#+\s+(.*$)/gm, '**$1**');
+    processed = processed.replace(/^#+\s+(.*$)/gm, '**$1**');
   }
 
-  const rawHtml = marked.parse(processedMarkdown, { async: false }) as string;
+  const rawHtml = marked.parse(processed, { async: false }) as string;
   const cleanHtml = DOMPurify.sanitize(rawHtml);
 
-  // Apply inline styles for clipboard copying to preserve syntax highlighting
-  if (forClipboard) {
-    return applyInlineStyles(cleanHtml);
-  }
+  return forClipboard ? applyInlineStyles(cleanHtml) : cleanHtml;
+};
 
-  return cleanHtml;
+// Unicode offset mappings for bold/italic variants
+const UNICODE_OFFSETS = {
+  bold: { upper: 0x1d3bf, lower: 0x1d3b9, digit: 0x1d79e }, // 0x1d400 - 0x41, 0x1d41a - 0x61, 0x1d7ce - 0x30
+  italic: { upper: 0x1d5c7, lower: 0x1d5c1, digit: null }, // 0x1d608 - 0x41, 0x1d622 - 0x61
 };
 
 const toUnicodeVariant = (str: string, variant: 'bold' | 'italic'): string => {
-  const offsets = {
-    bold: {
-      upper: 0x1d400 - 0x41,
-      lower: 0x1d41a - 0x61,
-      digit: 0x1d7ce - 0x30,
-    },
-    italic: { upper: 0x1d608 - 0x41, lower: 0x1d622 - 0x61, digit: null }, // using sans-serif italic
-  };
-  const off = offsets[variant];
+  const offsets = UNICODE_OFFSETS[variant];
 
-  // We should only convert standard ASCII letters/digits, leave spaces and punctuation alone
   return str
     .split('')
     .map((c) => {
       const code = c.charCodeAt(0);
-      if (code >= 0x41 && code <= 0x5a) return String.fromCodePoint(code + off.upper);
-      if (code >= 0x61 && code <= 0x7a) return String.fromCodePoint(code + off.lower);
-      if (variant === 'bold' && code >= 0x30 && code <= 0x39 && off.digit) {
-        return String.fromCodePoint(code + off.digit);
+      if (code >= 65 && code <= 90) return String.fromCodePoint(code + offsets.upper);
+      if (code >= 97 && code <= 122) return String.fromCodePoint(code + offsets.lower);
+      if (variant === 'bold' && offsets.digit && code >= 48 && code <= 57) {
+        return String.fromCodePoint(code + offsets.digit);
       }
       return c;
     })
     .join('');
 };
 
-// Unique delimiter characters from Private Use Area (PUA)
-// These are unlikely to appear in normal user content
+// Private Use Area delimiter characters
 const DELIM_START = '\uE000';
 const DELIM_END = '\uE001';
 
@@ -136,13 +118,10 @@ const DELIM_END = '\uE001';
  */
 export const markdownToSocialText = (markdown: string, style: string = 'standard'): string => {
   let text = markdown;
-
-  // Protect code blocks to avoid formatting inner contents
   const codeBlocks: { lang: string; code: string }[] = [];
   const inlineCodes: string[] = [];
 
-  // Extract code blocks with language detection
-  // Use non-ASCII delimiter characters that won't be affected by text transformations
+  // Extract code blocks and inline codes
   text = text.replace(/```(\w+)?\n?([\s\S]*?)```/g, (_match, lang, code) => {
     codeBlocks.push({ lang: lang || '', code: code.trim() });
     return `${DELIM_START}CODEBLOCK${codeBlocks.length - 1}${DELIM_END}`;
@@ -153,56 +132,45 @@ export const markdownToSocialText = (markdown: string, style: string = 'standard
     return `${DELIM_START}INLINECODE${inlineCodes.length - 1}${DELIM_END}`;
   });
 
-  // Replace Headers (always apply bold)
+  // Convert headers to bold
   text = text.replace(/^#+\s+(.*$)/gm, (_, p1) => toUnicodeVariant(p1, 'bold'));
 
-  // Apply Bullet Styles
-  if (style === 'bullet-optimized') {
-    text = text.replace(/^[-*]\s/gm, '✅ ');
-  } else {
-    text = text.replace(/^[-*]\s/gm, '• ');
-  }
+  // Apply bullet styles
+  text = text.replace(/^[-*]\s/gm, style === 'bullet-optimized' ? '✅ ' : '• ');
 
-  // Convert Bold **text**
+  // Convert bold and italic
   text = text.replace(/\*\*(.*?)\*\*/g, (_, p1) => toUnicodeVariant(p1, 'bold'));
 
-  // Convert Italics *text* or _text_
-  // Use a compatible approach instead of lookbehind to support older browsers (Safari < 16)
-  // Match single asterisks that aren't part of a double asterisk
+  // Convert italic with asterisks (handle edge cases)
   text = text.replace(
     /(^|[^*])\*([^*])(.*?)\*([^*]|$)/g,
-    (_match, prefix, firstChar, content, suffix) => {
-      // Reconstruct with italic content, keeping surrounding characters
-      const italicText = toUnicodeVariant(firstChar + content, 'italic');
-      return prefix + italicText + suffix;
-    }
+    (_match, prefix, firstChar, content, suffix) =>
+      prefix + toUnicodeVariant(firstChar + content, 'italic') + suffix
   );
-  // Handle italic text at start of line
-  text = text.replace(/^\*([^*])(.*?)\*([^*]|$)/gm, (_match, firstChar, content, suffix) => {
-    const italicText = toUnicodeVariant(firstChar + content, 'italic');
-    return italicText + suffix;
-  });
+  text = text.replace(
+    /^\*([^*])(.*?)\*([^*]|$)/gm,
+    (_match, firstChar, content, suffix) => toUnicodeVariant(firstChar + content, 'italic') + suffix
+  );
   text = text.replace(/_(.*?)_/g, (_, p1) => toUnicodeVariant(p1, 'italic'));
 
-  // Clean up any other Markdown that might leak
-  // e.g. [text](url) -> text (url)
+  // Convert links [text](url) -> text (url)
   text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1 ($2)');
 
-  // Restore inline codes as plain backticks
+  // Restore inline codes
   inlineCodes.forEach((code, i) => {
-    const content = code.slice(1, -1); // Remove surrounding backticks
+    const content = code.slice(1, -1);
     text = text.replace(
       new RegExp(`${DELIM_START}INLINECODE${i}${DELIM_END}`, 'g'),
       `\`${content}\``
     );
   });
 
-  // Restore code blocks - LinkedIn doesn't support triple backticks
-  // so we just output the raw code. Users can manually format as code in LinkedIn.
+  // Restore code blocks
   codeBlocks.forEach((block, i) => {
-    // Just output the raw code with newlines for separation
-    const formatted = `\n${block.code}\n`;
-    text = text.replace(new RegExp(`${DELIM_START}CODEBLOCK${i}${DELIM_END}`, 'g'), formatted);
+    text = text.replace(
+      new RegExp(`${DELIM_START}CODEBLOCK${i}${DELIM_END}`, 'g'),
+      `\n${block.code}\n`
+    );
   });
 
   return text;

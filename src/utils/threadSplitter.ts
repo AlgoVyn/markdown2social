@@ -14,84 +14,62 @@ export interface SplitResult {
   needsThread: boolean;
 }
 
+const createPost = (content: string, id: number): ThreadPost => ({
+  id,
+  content: content.trim(),
+  characterCount: calculateCharacterCount(content, 'twitter'),
+});
+
 /**
  * Splits markdown content into Twitter/X thread-sized chunks.
  * Tries to split at logical boundaries (paragraphs, sentences) when possible.
  */
 export const splitIntoThread = (content: string, maxLength: number = 280): SplitResult => {
   const posts: ThreadPost[] = [];
-  const paragraphs = content.split(/\n\n+/);
-
   let currentPost = '';
   let postId = 1;
 
-  for (const paragraph of paragraphs) {
-    const trimmedParagraph = paragraph.trim();
-    if (!trimmedParagraph) continue;
+  for (const paragraph of content.split(/\n\n+/)) {
+    const trimmed = paragraph.trim();
+    if (!trimmed) continue;
 
-    // Check if paragraph alone exceeds limit
-    const paragraphCount = calculateCharacterCount(trimmedParagraph, 'twitter');
+    const paragraphCount = calculateCharacterCount(trimmed, 'twitter');
 
     if (paragraphCount > maxLength) {
-      // Paragraph is too long, need to split it further
+      // Paragraph too long - flush current post first
       if (currentPost) {
-        posts.push({
-          id: postId++,
-          content: currentPost.trim(),
-          characterCount: calculateCharacterCount(currentPost, 'twitter'),
-        });
+        posts.push(createPost(currentPost, postId++));
         currentPost = '';
       }
 
       // Split long paragraph at sentence boundaries
-      const sentences = trimmedParagraph.split(/(?<=[.!?])\s+/);
-      for (const sentence of sentences) {
-        const potentialPost = currentPost ? `${currentPost} ${sentence}` : sentence;
-        const count = calculateCharacterCount(potentialPost, 'twitter');
+      for (const sentence of trimmed.split(/(?<=[.!?])\s+/)) {
+        const potential = currentPost ? `${currentPost} ${sentence}` : sentence;
+        const count = calculateCharacterCount(potential, 'twitter');
 
         if (count <= maxLength) {
-          currentPost = potentialPost;
+          currentPost = potential;
         } else {
-          if (currentPost) {
-            posts.push({
-              id: postId++,
-              content: currentPost.trim(),
-              characterCount: calculateCharacterCount(currentPost, 'twitter'),
-            });
-          }
+          if (currentPost) posts.push(createPost(currentPost, postId++));
           currentPost = sentence;
         }
       }
     } else {
-      // Paragraph fits, try to add it to current post
-      const separator = currentPost ? '\n\n' : '';
-      const potentialPost = currentPost + separator + trimmedParagraph;
-      const count = calculateCharacterCount(potentialPost, 'twitter');
+      // Paragraph fits - try to add it
+      const potential = currentPost ? `${currentPost}\n\n${trimmed}` : trimmed;
+      const count = calculateCharacterCount(potential, 'twitter');
 
       if (count <= maxLength) {
-        currentPost = potentialPost;
+        currentPost = potential;
       } else {
-        // Current post is full, start a new one
-        if (currentPost) {
-          posts.push({
-            id: postId++,
-            content: currentPost.trim(),
-            characterCount: calculateCharacterCount(currentPost, 'twitter'),
-          });
-        }
-        currentPost = trimmedParagraph;
+        if (currentPost) posts.push(createPost(currentPost, postId++));
+        currentPost = trimmed;
       }
     }
   }
 
   // Don't forget the last post
-  if (currentPost) {
-    posts.push({
-      id: postId,
-      content: currentPost.trim(),
-      characterCount: calculateCharacterCount(currentPost, 'twitter'),
-    });
-  }
+  if (currentPost) posts.push(createPost(currentPost, postId));
 
   const totalCharacters = posts.reduce((sum, post) => sum + post.characterCount, 0);
 
@@ -107,11 +85,10 @@ export const splitIntoThread = (content: string, maxLength: number = 280): Split
 /**
  * Adds thread indicators (e.g., "1/5") to posts
  */
-export const addThreadIndicators = (result: SplitResult): ThreadPost[] => {
-  if (!result.needsThread) return result.posts;
-
-  return result.posts.map((post, index) => ({
-    ...post,
-    content: `${post.content}\n\n${index + 1}/${result.totalPosts}`,
-  }));
-};
+export const addThreadIndicators = (result: SplitResult): ThreadPost[] =>
+  result.needsThread
+    ? result.posts.map((post, index) => ({
+        ...post,
+        content: `${post.content}\n\n${index + 1}/${result.totalPosts}`,
+      }))
+    : result.posts;
