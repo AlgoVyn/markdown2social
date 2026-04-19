@@ -18,6 +18,44 @@ const MAX_DRAFTS = 20;
 const STORAGE_KEY = 'marksocial-drafts';
 
 /**
+ * Attempts to save drafts to localStorage with auto-trimming on quota exceeded.
+ * Will progressively reduce the number of drafts until save succeeds or minimum is reached.
+ *
+ * @param drafts - Array of drafts to save
+ * @param minDrafts - Minimum number of drafts to try (default: 1, just the newest)
+ * @returns Object with success flag and number of drafts actually saved
+ */
+function trySaveWithTrimming(
+  drafts: Draft[],
+  minDrafts: number = 1
+): { success: boolean; savedCount: number } {
+  let draftsToTry = drafts;
+
+  while (draftsToTry.length >= minDrafts) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(draftsToTry));
+      return { success: true, savedCount: draftsToTry.length };
+    } catch (e) {
+      const isQuotaError =
+        e instanceof Error && (e.name === 'QuotaExceededError' || e.message.includes('quota'));
+
+      if (isQuotaError && draftsToTry.length > minDrafts) {
+        // Try with fewer drafts - remove older drafts from the end
+        // Keep roughly half, but at least minDrafts
+        const newLength = Math.max(minDrafts, Math.floor(draftsToTry.length / 2));
+        draftsToTry = draftsToTry.slice(0, newLength);
+        console.warn(`[useHistory] Quota exceeded, trying with ${draftsToTry.length} drafts`);
+      } else {
+        // Either not a quota error or we've reached minimum drafts
+        throw e;
+      }
+    }
+  }
+  // This should never be reached, but satisfies TypeScript control flow analysis
+  throw new Error('[useHistory] Unexpected exit from trySaveWithTrimming loop');
+}
+
+/**
  * Custom hook for managing draft history in localStorage.
  *
  * Note: Size checking relies on the browser's actual quota enforcement
@@ -69,15 +107,27 @@ export function useHistory(): UseHistoryReturn {
       const next = [newDraft, ...prev].slice(0, MAX_DRAFTS);
 
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-        setLoadError(null); // Clear any previous error on success
+        const result = trySaveWithTrimming(next, 1);
+
+        if (result.success) {
+          setLoadError(null); // Clear any previous error on success
+
+          // If we had to trim drafts, update the state to reflect what was actually saved
+          if (result.savedCount < next.length) {
+            console.warn(
+              `[useHistory] Trimmed drafts from ${next.length} to ${result.savedCount} due to storage limits`
+            );
+            return next.slice(0, result.savedCount);
+          }
+        }
       } catch (e) {
-        // localStorage is not available or quota exceeded
+        // localStorage is not available or quota exceeded even with minimum
         let errorMsg: string;
 
         if (e instanceof Error) {
           if (e.name === 'QuotaExceededError' || e.message.includes('quota')) {
-            errorMsg = 'Storage is full. Try clearing some old drafts or browser data.';
+            errorMsg =
+              'Storage is full. Cannot save even a single draft. Try clearing browser data.';
           } else if (e.name === 'SecurityError' || e.message.includes('secure')) {
             errorMsg = 'Storage access blocked. Check browser privacy settings.';
           } else {

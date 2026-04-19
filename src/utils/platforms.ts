@@ -10,6 +10,8 @@ export interface PlatformConfig {
   supportsImages: boolean;
   supportsVideos: boolean;
   warningThreshold: number;
+  /** URL shortener length - if set, URLs count as this many characters instead of actual length */
+  urlShortenerLength?: number;
 }
 
 // Default configuration for most platforms
@@ -36,6 +38,8 @@ export const PLATFORM_CONFIGS: Record<string, PlatformConfig> = {
     characterLimit: 280,
     ...DEFAULT_CONFIG,
     warningThreshold: 0.9,
+    // Twitter's t.co shortener uses 23 characters for all URLs
+    urlShortenerLength: 23,
   },
   instagram: {
     name: 'Instagram',
@@ -114,15 +118,12 @@ export const getPlatformConfig = (platform: string): PlatformConfig =>
  */
 const URL_REGEX = /https?:\/\/[^\s\]>,;:!?'"]+(?:[^\s\]>,;:!?'"]*[^\s\]>,;:!?'"])?/g;
 
-// Twitter's t.co shortener uses 23 characters for all URLs
-const TWITTER_URL_LENGTH = 23;
-
 /**
  * Calculates the character count of text, accounting for URL shortening.
  *
- * For platforms that support links (like Twitter), URLs are counted as a
- * fixed length (23 characters for Twitter's t.co shortener) rather than
- * their actual character count.
+ * For platforms with URL shorteners (like Twitter's t.co), URLs are counted
+ * as a fixed length rather than their actual character count. For platforms
+ * without URL shorteners, URLs are counted at their actual length.
  *
  * @param text - The text to count
  * @param platform - The platform key
@@ -140,7 +141,17 @@ export const calculateCharacterCount = (text: string, platform: string): number 
     return text.length;
   }
 
-  return text.length - urls.reduce((sum, url) => sum + url.length - TWITTER_URL_LENGTH, 0);
+  // If platform has a URL shortener (like Twitter's t.co), use the fixed length
+  // Otherwise, count URLs at their actual length
+  const urlTargetLength = config.urlShortenerLength;
+
+  if (urlTargetLength === undefined) {
+    // No URL shortener - count URLs at actual length
+    return text.length;
+  }
+
+  // Apply URL shortener calculation
+  return text.length - urls.reduce((sum, url) => sum + url.length - urlTargetLength, 0);
 };
 
 export interface CharacterCountStatus {

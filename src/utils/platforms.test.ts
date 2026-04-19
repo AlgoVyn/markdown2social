@@ -201,3 +201,67 @@ describe('getCharacterCountStatus', () => {
     expect(status.isOver).toBe(false);
   });
 });
+
+describe('calculateCharacterCount with platform-specific URL handling', () => {
+  const longUrl = 'https://example.com/some/very/long/url/path';
+  const shortUrl = 'https://short.com';
+
+  it('should apply URL shortener only to Twitter/X', () => {
+    const text = `Check out ${longUrl}`;
+    // Twitter has urlShortenerLength = 23
+    const twitterCount = calculateCharacterCount(text, 'twitter');
+    // "Check out " = 10 + 23 = 33
+    expect(twitterCount).toBe(33);
+  });
+
+  it('should count URLs at actual length for LinkedIn', () => {
+    const text = `Check out ${longUrl}`;
+    // LinkedIn has no urlShortenerLength, so URLs count at actual length
+    const linkedinCount = calculateCharacterCount(text, 'linkedin');
+    // "Check out " = 10 + URL length (43) = 53
+    expect(linkedinCount).toBe(53);
+  });
+
+  it('should count URLs at actual length for other platforms without shorteners', () => {
+    const text = `Check out ${longUrl}`;
+    const urlLength = longUrl.length;
+    const baseLength = 'Check out '.length; // 10
+    const expectedCount = baseLength + urlLength;
+
+    // These platforms don't have urlShortenerLength set
+    expect(calculateCharacterCount(text, 'mastodon')).toBe(expectedCount);
+    expect(calculateCharacterCount(text, 'bluesky')).toBe(expectedCount);
+    expect(calculateCharacterCount(text, 'threads')).toBe(expectedCount);
+    expect(calculateCharacterCount(text, 'discord')).toBe(expectedCount);
+  });
+
+  it('should handle multiple URLs correctly on platforms without shorteners', () => {
+    const text = `Visit ${longUrl} and ${shortUrl}`;
+    const count = calculateCharacterCount(text, 'linkedin');
+    // All URLs counted at actual length for LinkedIn
+    // "Visit " = 6 + 43 + " and " = 5 + 17 = 71
+    expect(count).toBe(71);
+  });
+
+  it('should handle multiple URLs on Twitter with fixed length', () => {
+    const text = `Visit ${longUrl} and ${shortUrl}`;
+    const count = calculateCharacterCount(text, 'twitter');
+    // Both URLs count as 23 characters each
+    // "Visit " = 6 + 23 + " and " = 5 + 23 = 57
+    expect(count).toBe(57);
+  });
+
+  it('should return actual text length for platforms that do not support links', () => {
+    const text = `Check out ${longUrl}`;
+    // Instagram doesn't support links, so full text length is counted
+    const instagramCount = calculateCharacterCount(text, 'instagram');
+    expect(instagramCount).toBe(text.length);
+  });
+
+  it('should have urlShortenerLength only on Twitter config', () => {
+    expect(PLATFORM_CONFIGS.twitter.urlShortenerLength).toBe(23);
+    expect(PLATFORM_CONFIGS.linkedin.urlShortenerLength).toBeUndefined();
+    expect(PLATFORM_CONFIGS.bluesky.urlShortenerLength).toBeUndefined();
+    expect(PLATFORM_CONFIGS.mastodon.urlShortenerLength).toBeUndefined();
+  });
+});

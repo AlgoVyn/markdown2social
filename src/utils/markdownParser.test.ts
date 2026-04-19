@@ -313,3 +313,98 @@ describe('markdownToSocialText', () => {
     });
   });
 });
+
+describe('nested bold and italic patterns', () => {
+  it('should handle combined bold and italic with triple asterisks as all bold', () => {
+    const markdown = '***bold and italic***';
+    const result = markdownToSocialText(markdown);
+    // Should contain both bold and italic unicode characters
+    expect(result).toContain('𝐛'); // bold b (outer bold wins)
+    expect(result).toContain('𝐨'); // bold o
+    expect(result).not.toContain('***');
+  });
+
+  it('should handle nested italic inside bold', () => {
+    const markdown = '**bold *and italic* text**';
+    const result = markdownToSocialText(markdown);
+    expect(result).not.toContain('**');
+    expect(result).not.toContain('*');
+    // All text should be bold (outer wins)
+    expect(result).toContain('𝐛'); // bold b
+    expect(result).toContain('𝐭'); // bold t
+  });
+
+  it('should handle bold inside italic', () => {
+    const markdown = '*italic **and bold** text*';
+    const result = markdownToSocialText(markdown);
+    expect(result).not.toContain('**');
+    expect(result).not.toContain('*');
+    // Should handle gracefully without crashing
+    expect(result.length).toBeGreaterThan(0);
+  });
+
+  it('should handle consecutive bold and italic patterns', () => {
+    const markdown = '**bold***italic*';
+    const result = markdownToSocialText(markdown);
+    expect(result).not.toContain('**');
+    expect(result).not.toContain('*');
+    // Should contain both bold and italic characters
+    expect(result).toContain('𝐛'); // bold b
+    expect(result).toContain('𝘪'); // italic i
+  });
+
+  it('should handle multiple asterisks at line boundaries', () => {
+    const markdown = '*first line\n*second line';
+    const result = markdownToSocialText(markdown);
+    // Should not crash and should process each line
+    expect(result.length).toBeGreaterThan(0);
+  });
+
+  it('should handle bold with underscores inside', () => {
+    const markdown = '**bold_with_underscores**';
+    const result = markdownToSocialText(markdown);
+    expect(result).not.toContain('**');
+    expect(result).toContain('𝐛'); // bold b
+    expect(result).toContain('𝐰'); // bold w
+  });
+
+  it('should handle italic with asterisks at word boundaries', () => {
+    const markdown = '*start*middle*end*';
+    const result = markdownToSocialText(markdown);
+    // Should only process valid italic patterns
+    expect(result).not.toContain('*');
+  });
+
+  it('should handle bold at start of line', () => {
+    const markdown = '**start bold** then normal';
+    const result = markdownToSocialText(markdown);
+    expect(result).toContain('𝐬'); // bold s
+    expect(result).toContain('𝐭'); // bold t
+    expect(result).toContain('then normal');
+  });
+
+  it('should handle italic at start of line', () => {
+    const markdown = '*start italic* then normal';
+    const result = markdownToSocialText(markdown);
+    expect(result).toContain('𝘴'); // italic s
+    expect(result).toContain('𝘵'); // italic t
+    expect(result).toContain('then normal');
+  });
+
+  it('should handle partial italic patterns (unmatched asterisks)', () => {
+    const markdown = '*unclosed italic';
+    const result = markdownToSocialText(markdown);
+    // Should preserve unmatched asterisks or handle gracefully
+    expect(result.length).toBeGreaterThan(0);
+  });
+
+  it('should handle bold-italic-bold pattern', () => {
+    const markdown = '**bold***italic***bold again**';
+    const result = markdownToSocialText(markdown);
+    expect(result).not.toContain('**');
+    expect(result).not.toContain('*');
+    // Should contain both bold and italic
+    expect(result).toContain('𝐛'); // bold b
+    expect(result).toContain('𝘪'); // italic i
+  });
+});
