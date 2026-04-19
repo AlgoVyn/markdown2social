@@ -3,40 +3,40 @@ import { parseMarkdown, markdownToSocialText } from '../utils/markdownParser';
 
 describe('parseMarkdown', () => {
   describe('basic parsing', () => {
-    it('should parse headings', () => {
+    it('should parse headings', async () => {
       const markdown = '# Heading 1\n## Heading 2';
-      const result = parseMarkdown(markdown);
+      const result = await parseMarkdown(markdown);
       expect(result).toContain('<h1');
       expect(result).toContain('Heading 1');
       expect(result).toContain('<h2');
       expect(result).toContain('Heading 2');
     });
 
-    it('should parse bold text', () => {
+    it('should parse bold text', async () => {
       const markdown = '**bold text**';
-      const result = parseMarkdown(markdown);
+      const result = await parseMarkdown(markdown);
       expect(result).toContain('<strong');
       expect(result).toContain('bold text');
     });
 
-    it('should parse italic text', () => {
+    it('should parse italic text', async () => {
       const markdown = '*italic text*';
-      const result = parseMarkdown(markdown);
+      const result = await parseMarkdown(markdown);
       expect(result).toContain('<em');
       expect(result).toContain('italic text');
     });
 
-    it('should parse links', () => {
+    it('should parse links', async () => {
       const markdown = '[link text](https://example.com)';
-      const result = parseMarkdown(markdown);
+      const result = await parseMarkdown(markdown);
       expect(result).toContain('<a');
       expect(result).toContain('href="https://example.com"');
       expect(result).toContain('link text');
     });
 
-    it('should parse unordered lists', () => {
+    it('should parse unordered lists', async () => {
       const markdown = '- Item 1\n- Item 2\n* Item 3';
-      const result = parseMarkdown(markdown);
+      const result = await parseMarkdown(markdown);
       expect(result).toContain('<ul');
       expect(result).toContain('<li');
       expect(result).toContain('Item 1');
@@ -44,73 +44,73 @@ describe('parseMarkdown', () => {
       expect(result).toContain('Item 3');
     });
 
-    it('should parse ordered lists', () => {
+    it('should parse ordered lists', async () => {
       const markdown = '1. First\n2. Second';
-      const result = parseMarkdown(markdown);
+      const result = await parseMarkdown(markdown);
       expect(result).toContain('<ol');
       expect(result).toContain('<li');
       expect(result).toContain('First');
       expect(result).toContain('Second');
     });
 
-    it('should parse code blocks', () => {
+    it('should parse code blocks', async () => {
       const markdown = '```javascript\nconst x = 1;\n```';
-      const result = parseMarkdown(markdown);
+      const result = await parseMarkdown(markdown);
       expect(result).toContain('<pre');
       expect(result).toContain('<code');
       expect(result).toContain('const');
       expect(result).toContain('x');
     });
 
-    it('should parse inline code', () => {
+    it('should parse inline code', async () => {
       const markdown = '`inline code`';
-      const result = parseMarkdown(markdown);
+      const result = await parseMarkdown(markdown);
       expect(result).toContain('<code');
       expect(result).toContain('inline code');
     });
   });
 
   describe('style transformations', () => {
-    it('should apply bullet-optimized style', () => {
+    it('should apply bullet-optimized style', async () => {
       const markdown = '- Item 1\n- Item 2';
-      const result = parseMarkdown(markdown, 'bullet-optimized');
+      const result = await parseMarkdown(markdown, 'bullet-optimized');
       expect(result).toContain('✅');
     });
 
-    it('should apply bold-headers style', () => {
+    it('should apply bold-headers style', async () => {
       const markdown = '# Header';
-      const result = parseMarkdown(markdown, 'bold-headers');
+      const result = await parseMarkdown(markdown, 'bold-headers');
       expect(result).toContain('<strong');
       expect(result).toContain('Header');
     });
 
-    it('should not apply transformations for standard style', () => {
+    it('should not apply transformations for standard style', async () => {
       const markdown = '# Header\n- Item';
-      const result = parseMarkdown(markdown, 'standard');
+      const result = await parseMarkdown(markdown, 'standard');
       expect(result).toContain('<h1');
       expect(result).toContain('<ul');
     });
   });
 
   describe('clipboard formatting', () => {
-    it('should apply inline styles for clipboard', () => {
+    it('should apply inline styles for clipboard', async () => {
       const markdown = '```javascript\nconst x = 1;\n```';
-      const result = parseMarkdown(markdown, 'standard', true);
+      const result = await parseMarkdown(markdown, 'standard', true);
       expect(result).toContain('hljs');
       expect(result).toContain('style=');
     });
   });
 
   describe('sanitization', () => {
-    it('should sanitize malicious HTML', () => {
+    it('should sanitize malicious HTML', async () => {
       const markdown = '<script>alert("xss")</script>';
-      const result = parseMarkdown(markdown);
+      const result = await parseMarkdown(markdown);
       expect(result).not.toContain('<script');
     });
 
-    it('should re-sanitize HTML after clipboard style injection', () => {
+    it('should re-sanitize HTML after clipboard style injection', async () => {
       const markdown = '# Test';
-      const result = parseMarkdown(markdown, 'standard', true);
+      const result = await parseMarkdown(markdown, 'standard', true);
       // Should not contain any script tags even after DOM manipulation
       expect(result).not.toContain('<script');
       expect(result).not.toContain('javascript:');

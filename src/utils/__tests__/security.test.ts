@@ -4,37 +4,37 @@ import { sanitizeMarkdown, validateDrafts } from '../validation';
 
 describe('Security - XSS Prevention', () => {
   describe('parseMarkdown sanitization', () => {
-    it('should remove script tags', () => {
+    it('should remove script tags', async () => {
       const markdown = '<script>alert("xss")</script>Hello';
-      const result = parseMarkdown(markdown);
+      const result = await parseMarkdown(markdown);
       expect(result).not.toContain('<script');
       expect(result).not.toContain('alert');
       expect(result).toContain('Hello');
     });
 
-    it('should remove event handlers from HTML', () => {
+    it('should remove event handlers from HTML', async () => {
       const markdown = '<p onclick="alert(\'xss\')">Click me</p>';
-      const result = parseMarkdown(markdown);
+      const result = await parseMarkdown(markdown);
       expect(result).not.toContain('onclick');
       expect(result).not.toContain('alert');
     });
 
-    it('should remove javascript: URLs', () => {
+    it('should remove javascript: URLs', async () => {
       const markdown = '[Click me](javascript:alert("xss"))';
-      const result = parseMarkdown(markdown);
+      const result = await parseMarkdown(markdown);
       expect(result).not.toContain('javascript:');
     });
 
-    it('should sanitize nested malicious content', () => {
+    it('should sanitize nested malicious content', async () => {
       const markdown = '<div><script>alert(1)</script><p>Safe</p></div>';
-      const result = parseMarkdown(markdown);
+      const result = await parseMarkdown(markdown);
       expect(result).not.toContain('<script');
       expect(result).toContain('Safe');
     });
 
-    it('should handle data: URLs safely', () => {
+    it('should handle data: URLs safely', async () => {
       const markdown = '<img src="data:text/html,<script>alert(1)</script>">';
-      const result = parseMarkdown(markdown);
+      const result = await parseMarkdown(markdown);
       // DOMPurify should strip dangerous data URLs
       expect(result).not.toContain('data:text/html');
     });
@@ -161,38 +161,38 @@ describe('Security - XSS Prevention', () => {
   });
 
   describe('URL handling security', () => {
-    it('should handle URLs with special characters', () => {
+    it('should handle URLs with special characters', async () => {
       const markdown = '[Link](https://example.com/path(1))';
-      const result = parseMarkdown(markdown);
+      const result = await parseMarkdown(markdown);
       expect(result).toContain('https://example.com/path(1)');
     });
 
-    it('should sanitize URLs with javascript protocol', () => {
+    it('should sanitize URLs with javascript protocol', async () => {
       const markdown = '[Link](javascript:alert(1))';
-      const result = parseMarkdown(markdown);
+      const result = await parseMarkdown(markdown);
       // DOMPurify should remove or neutralize javascript: URLs
       expect(result).not.toMatch(/javascript:/i);
     });
 
-    it('should handle data URLs safely', () => {
+    it('should handle data URLs safely', async () => {
       const markdown = '![Alt](data:image/svg+xml,<svg></svg>)';
-      const result = parseMarkdown(markdown);
+      const result = await parseMarkdown(markdown);
       // Image tags might be stripped entirely based on DOMPurify config
       expect(result).not.toContain('data:image');
     });
   });
 
   describe('HTML entity encoding', () => {
-    it('should handle HTML entities properly', () => {
+    it('should handle HTML entities properly', async () => {
       const markdown = '&lt;script&gt;alert(1)&lt;/script&gt;';
-      const result = parseMarkdown(markdown);
+      const result = await parseMarkdown(markdown);
       // Entities should be decoded or preserved safely
       expect(result).not.toContain('<script>');
     });
 
-    it('should handle mixed content safely', () => {
+    it('should handle mixed content safely', async () => {
       const markdown = 'Text <b>bold</b> <script>evil</script> more';
-      const result = parseMarkdown(markdown);
+      const result = await parseMarkdown(markdown);
       expect(result).toContain('<b>bold</b>');
       expect(result).not.toContain('<script>');
       expect(result).not.toContain('evil');

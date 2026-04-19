@@ -113,11 +113,11 @@ const applyInlineStyles = (html: string): string => {
   return DOMPurify.sanitize(doc.body.innerHTML, CLIPBOARD_PURIFY_CONFIG);
 };
 
-export const parseMarkdown = (
+export const parseMarkdown = async (
   markdown: string,
   style: string = 'standard',
   forClipboard: boolean = false
-): string => {
+): Promise<string> => {
   let processed = markdown;
 
   if (style === 'bullet-optimized') {
@@ -126,7 +126,8 @@ export const parseMarkdown = (
     processed = processed.replace(/^#+\s+(.*$)/gm, '**$1**');
   }
 
-  const rawHtml = marked.parse(processed, { async: false }) as string;
+  // marked.parse returns a Promise in v10+, await it properly
+  const rawHtml = await marked.parse(processed);
   const cleanHtml = DOMPurify.sanitize(rawHtml, PURIFY_CONFIG);
 
   return forClipboard ? applyInlineStyles(cleanHtml) : cleanHtml;
@@ -223,41 +224,21 @@ const DELIM_END = '\uE001';
 export const markdownToSocialText = (markdown: string, style: string = 'standard'): string => {
   if (!markdown) return '';
 
-  // Pre-allocate arrays for better memory efficiency
+  // Phase 1: Extract and mask code content using single-pass replace with callback
   const codeBlocks: { lang: string; code: string }[] = [];
+  let text = markdown.replace(/```(\w+)?\n?([\s\S]*?)```/g, (_match, lang, code) => {
+    const index = codeBlocks.length;
+    codeBlocks.push({ lang: lang || '', code: code.trim() });
+    return `${DELIM_START}CODEBLOCK${index}${DELIM_END}`;
+  });
+
+  // Extract inline codes with single-pass approach
   const inlineCodes: string[] = [];
-
-  // Phase 1: Extract and mask code content (single pass)
-  let text = markdown;
-
-  // Extract code blocks - use while loop for better control than nested replaces
-  let codeBlockMatch: RegExpExecArray | null;
-  const codeBlockRegex = /```(\w+)?\n?([\s\S]*?)```/g;
-  while ((codeBlockMatch = codeBlockRegex.exec(markdown)) !== null) {
-    codeBlocks.push({
-      lang: codeBlockMatch[1] || '',
-      code: codeBlockMatch[2].trim(),
-    });
-  }
-
-  // Replace code blocks with placeholders
-  text = text.replace(
-    codeBlockRegex,
-    () => `${DELIM_START}CODEBLOCK${codeBlocks.length - 1}${DELIM_END}`
-  );
-
-  // Extract inline codes
-  let inlineMatch: RegExpExecArray | null;
-  const inlineRegex = /`([^`]+)`/g;
-  while ((inlineMatch = inlineRegex.exec(text)) !== null) {
-    inlineCodes.push(inlineMatch[0]);
-  }
-
-  // Replace inline codes with placeholders
-  text = text.replace(
-    inlineRegex,
-    () => `${DELIM_START}INLINECODE${inlineCodes.length - 1}${DELIM_END}`
-  );
+  text = text.replace(/`([^`]+)`/g, (match) => {
+    const index = inlineCodes.length;
+    inlineCodes.push(match);
+    return `${DELIM_START}INLINECODE${index}${DELIM_END}`;
+  });
 
   // Phase 2: Process markdown formatting (combined where possible)
   const lines = text.split('\n');

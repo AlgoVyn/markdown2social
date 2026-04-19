@@ -80,14 +80,14 @@ describe('Performance Tests', () => {
       expect(end - start).toBeLessThan(500);
     });
 
-    it('should handle HTML clipboard formatting for large content', () => {
+    it('should handle HTML clipboard formatting for large content', async () => {
       const content = Array(100)
         .fill(null)
         .map((_, i) => `\`\`\`javascript\nconst code${i} = ${i};\n\`\`\``)
         .join('\n\n');
 
       const start = performance.now();
-      const result = parseMarkdown(content, 'standard', true);
+      const result = await parseMarkdown(content, 'standard', true);
       const end = performance.now();
 
       expect(result).toBeTruthy();
