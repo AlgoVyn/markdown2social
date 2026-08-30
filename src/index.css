@@ -46,9 +46,9 @@
   --text-secondary: #6e6e6e;
   --border-color: #e5e5e5;
 
-  /* Brand indigo — distinct from the editor chrome, consistent light/dark */
-  --primary-color: #4f46e5;
-  --primary-hover: #4338ca;
+  /* Brand blue — matches the MarkSocial logo (#007acc) */
+  --primary-color: #007acc;
+  --primary-hover: #005a9e;
   --secondary-color: #f3f3f3;
   --secondary-hover: #e5e5e5;
   --danger-color: #c75450;
@@ -103,8 +103,8 @@
   --text-secondary: #a0a0a0; /* Lightened for 5:1 contrast (was #858585) */
   --border-color: #3c3c3c;
 
-  --primary-color: #6366f1;
-  --primary-hover: #4f46e5;
+  --primary-color: #007acc;
+  --primary-hover: #0098ff;
   --secondary-color: #2d2d30;
   --secondary-hover: #3c3c3c;
 

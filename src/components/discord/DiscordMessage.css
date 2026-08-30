@@ -1,9 +1,30 @@
+/* Discord preview follows the app theme: light mode shows Discord's light
+   palette, dark mode its dark palette. */
 .discord-container {
-  background: #36393f;
+  --discord-bg: #ffffff;
+  --discord-border: #e3e5e8;
+  --discord-text: #313338;
+  --discord-text-muted: #747f8d;
+  --discord-heading: #060607;
+  --discord-code-bg: #f2f3f5;
+
+  background: var(--discord-bg);
   border-radius: 8px;
   font-family: 'Whitney', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  color: #dcddde;
+  color: var(--discord-text);
   overflow: hidden;
+  transition:
+    background-color var(--transition-normal),
+    color var(--transition-normal);
+}
+
+[data-theme='dark'] .discord-container {
+  --discord-bg: #36393f;
+  --discord-border: #202225;
+  --discord-text: #dcddde;
+  --discord-text-muted: #72767d;
+  --discord-heading: #ffffff;
+  --discord-code-bg: #2f3136;
 }
 
 .discord-channel-header {
@@ -11,18 +32,18 @@
   align-items: center;
   gap: 8px;
   padding: 16px;
-  border-bottom: 1px solid #202225;
-  background: #36393f;
+  border-bottom: 1px solid var(--discord-border);
+  background: var(--discord-bg);
 }
 
 .discord-channel-icon {
-  color: #72767d;
+  color: var(--discord-text-muted);
   font-size: 20px;
   font-weight: 500;
 }
 
 .discord-channel-name {
-  color: #fff;
+  color: var(--discord-heading);
   font-weight: 600;
   font-size: 16px;
 }
@@ -31,7 +52,7 @@
   display: flex;
   gap: 16px;
   padding: 16px;
-  background: #36393f;
+  background: var(--discord-bg);
 }
 
 .discord-avatar {
@@ -63,20 +84,20 @@
 }
 
 .discord-username {
-  color: #fff;
+  color: var(--discord-heading);
   font-weight: 500;
   font-size: 16px;
 }
 
 .discord-timestamp {
-  color: #72767d;
+  color: var(--discord-text-muted);
   font-size: 12px;
 }
 
 .discord-text {
   font-size: 15px;
   line-height: 1.4;
-  color: #dcddde;
+  color: var(--discord-text);
   white-space: pre-wrap;
   word-wrap: break-word;
 }
@@ -90,7 +111,7 @@
 }
 
 .discord-text code {
-  background: #2f3136;
+  background: var(--discord-code-bg);
   padding: 2px 4px;
   border-radius: 3px;
   font-family: 'Consolas', 'Monaco', monospace;
@@ -98,7 +119,7 @@
 }
 
 .discord-text pre {
-  background: #2f3136;
+  background: var(--discord-code-bg);
   padding: 8px;
   border-radius: 4px;
   margin: 8px 0;
@@ -111,7 +132,7 @@
 }
 
 .discord-placeholder {
-  color: #72767d;
+  color: var(--discord-text-muted);
   font-style: italic;
   margin: 0;
 }

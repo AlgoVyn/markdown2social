@@ -1,10 +1,34 @@
+/* Threads preview follows the app theme: light mode shows Threads' light
+   palette, dark mode its dark palette. */
 .threads-post {
-  background: #000;
+  --threads-bg: #ffffff;
+  --threads-text: #000000;
+  --threads-text-secondary: #999999;
+  --threads-border: #e5e5e5;
+  --threads-warning-bg: #fef2f2;
+  --threads-warning-border: #dc2626;
+  --threads-warning-text: #b91c1c;
+
+  background: var(--threads-bg);
   border-radius: 0;
   padding: 16px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color: #fff;
-  border-bottom: 1px solid #262626;
+  color: var(--threads-text);
+  border-bottom: 1px solid var(--threads-border);
+  transition:
+    background-color var(--transition-normal),
+    border-color var(--transition-normal),
+    color var(--transition-normal);
+}
+
+[data-theme='dark'] .threads-post {
+  --threads-bg: #000000;
+  --threads-text: #f5f5f5;
+  --threads-text-secondary: #a8a8a8;
+  --threads-border: #262626;
+  --threads-warning-bg: #450a0a;
+  --threads-warning-border: #dc2626;
+  --threads-warning-text: #fca5a5;
 }
 
 .threads-header {
@@ -39,12 +63,12 @@
 .threads-username {
   font-weight: 600;
   font-size: 14px;
-  color: #f5f5f5;
+  color: var(--threads-text);
 }
 
 .threads-time {
   font-size: 14px;
-  color: #a8a8a8;
+  color: var(--threads-text-secondary);
 }
 
 .threads-content {
@@ -54,7 +78,7 @@
 .threads-text {
   font-size: 15px;
   line-height: 1.5;
-  color: #f5f5f5;
+  color: var(--threads-text);
   margin: 0;
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -62,19 +86,19 @@
 
 .threads-placeholder {
   font-size: 15px;
-  color: #a8a8a8;
+  color: var(--threads-text-secondary);
   margin: 0;
   font-style: italic;
 }
 
 .threads-warning {
-  background: #450a0a;
-  border: 1px solid #dc2626;
+  background: var(--threads-warning-bg);
+  border: 1px solid var(--threads-warning-border);
   border-radius: 8px;
   padding: 12px;
   margin-bottom: 16px;
   font-size: 14px;
-  color: #fca5a5;
+  color: var(--threads-warning-text);
 }
 
 .threads-actions {
@@ -90,7 +114,7 @@
   height: 40px;
   background: none;
   border: none;
-  color: #a8a8a8;
+  color: var(--threads-text-secondary);
   cursor: default;
   padding: 0;
 }

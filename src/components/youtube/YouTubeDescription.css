@@ -1,15 +1,37 @@
+/* YouTube preview follows the app theme: light mode shows YouTube's light
+   palette, dark mode its dark palette. */
 .youtube-container {
-  background: #fff;
+  --yt-bg: #ffffff;
+  --yt-text: #030303;
+  --yt-text-muted: #606060;
+  --yt-border: #e5e5e5;
+  --yt-panel-bg: #f9f9f9;
+  --yt-link: #065fd4;
+
+  background: var(--yt-bg);
   border-radius: 12px;
   font-family: 'Roboto', 'Arial', sans-serif;
-  color: #030303;
+  color: var(--yt-text);
   overflow: hidden;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--yt-border);
+  transition:
+    background-color var(--transition-normal),
+    border-color var(--transition-normal),
+    color var(--transition-normal);
+}
+
+[data-theme='dark'] .youtube-container {
+  --yt-bg: #0f0f0f;
+  --yt-text: #f1f1f1;
+  --yt-text-muted: #aaaaaa;
+  --yt-border: #303030;
+  --yt-panel-bg: #272727;
+  --yt-link: #3ea6ff;
 }
 
 .youtube-video-section {
   padding: 16px;
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid var(--yt-border);
 }
 
 .youtube-video-placeholder {
@@ -80,13 +102,13 @@
 
 .youtube-description-box {
   padding: 16px;
-  background: #f9f9f9;
+  background: var(--yt-panel-bg);
 }
 
 .youtube-description-header {
   font-size: 14px;
   font-weight: 500;
-  color: #606060;
+  color: var(--yt-text-muted);
   margin-bottom: 12px;
 }
 
@@ -97,18 +119,18 @@
 .youtube-text {
   font-size: 14px;
   line-height: 1.6;
-  color: #030303;
+  color: var(--yt-text);
   white-space: pre-wrap;
   word-wrap: break-word;
 }
 
 .youtube-text .yt-hashtag {
-  color: #065fd4;
+  color: var(--yt-link);
   cursor: pointer;
 }
 
 .youtube-placeholder {
-  color: #606060;
+  color: var(--yt-text-muted);
   font-style: italic;
   margin: 0;
 }
@@ -121,7 +143,7 @@
 }
 
 .youtube-hashtag-pill {
-  color: #065fd4;
+  color: var(--yt-link);
   font-size: 14px;
 }
 
@@ -132,7 +154,7 @@
 .youtube-show-more button {
   background: none;
   border: none;
-  color: #065fd4;
+  color: var(--yt-link);
   font-weight: 500;
   font-size: 14px;
   cursor: default;
@@ -141,7 +163,7 @@
 
 .youtube-comments-section {
   padding: 16px;
-  border-top: 1px solid #e5e5e5;
+  border-top: 1px solid var(--yt-border);
 }
 
 .youtube-comments-header {
@@ -156,7 +178,7 @@
 .youtube-sort-btn {
   background: none;
   border: none;
-  color: #606060;
+  color: var(--yt-text-muted);
   font-size: 14px;
   cursor: default;
   display: flex;
@@ -181,7 +203,7 @@
 .youtube-comment-placeholder {
   flex: 1;
   padding: 8px 0;
-  border-bottom: 1px solid #e5e5e5;
-  color: #606060;
+  border-bottom: 1px solid var(--yt-border);
+  color: var(--yt-text-muted);
   font-size: 14px;
 }
