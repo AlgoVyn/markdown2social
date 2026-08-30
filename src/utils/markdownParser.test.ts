@@ -1,42 +1,46 @@
 import { describe, it, expect } from 'vitest';
-import { parseMarkdown, markdownToSocialText } from '../utils/markdownParser';
+import {
+  markdownToHtml,
+  markdownToSocialText,
+  markdownToSocialSegments,
+} from '../utils/markdownParser';
 
-describe('parseMarkdown', () => {
+describe('markdownToHtml', () => {
   describe('basic parsing', () => {
-    it('should parse headings', async () => {
+    it('should parse headings', () => {
       const markdown = '# Heading 1\n## Heading 2';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       expect(result).toContain('<h1');
       expect(result).toContain('Heading 1');
       expect(result).toContain('<h2');
       expect(result).toContain('Heading 2');
     });
 
-    it('should parse bold text', async () => {
+    it('should parse bold text', () => {
       const markdown = '**bold text**';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       expect(result).toContain('<strong');
       expect(result).toContain('bold text');
     });
 
-    it('should parse italic text', async () => {
+    it('should parse italic text', () => {
       const markdown = '*italic text*';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       expect(result).toContain('<em');
       expect(result).toContain('italic text');
     });
 
-    it('should parse links', async () => {
+    it('should parse links', () => {
       const markdown = '[link text](https://example.com)';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       expect(result).toContain('<a');
       expect(result).toContain('href="https://example.com"');
       expect(result).toContain('link text');
     });
 
-    it('should parse unordered lists', async () => {
+    it('should parse unordered lists', () => {
       const markdown = '- Item 1\n- Item 2\n* Item 3';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       expect(result).toContain('<ul');
       expect(result).toContain('<li');
       expect(result).toContain('Item 1');
@@ -44,76 +48,92 @@ describe('parseMarkdown', () => {
       expect(result).toContain('Item 3');
     });
 
-    it('should parse ordered lists', async () => {
+    it('should parse ordered lists', () => {
       const markdown = '1. First\n2. Second';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       expect(result).toContain('<ol');
       expect(result).toContain('<li');
       expect(result).toContain('First');
       expect(result).toContain('Second');
     });
 
-    it('should parse code blocks', async () => {
+    it('should parse code blocks', () => {
       const markdown = '```javascript\nconst x = 1;\n```';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       expect(result).toContain('<pre');
       expect(result).toContain('<code');
       expect(result).toContain('const');
       expect(result).toContain('x');
     });
 
-    it('should parse inline code', async () => {
+    it('should parse inline code', () => {
       const markdown = '`inline code`';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       expect(result).toContain('<code');
       expect(result).toContain('inline code');
     });
   });
 
+  describe('list and code structure', () => {
+    it('should not double-wrap ordered lists', () => {
+      const markdown = 'intro:\n\n1. one\n2. two\n3. three';
+      const result = markdownToHtml(markdown);
+      expect(result).toContain('<ol>');
+      expect(result).not.toContain('<ul>');
+    });
+
+    it('should keep multi-line code blocks intact', () => {
+      const markdown = '```\nconst a = 1;\nconst b = 2;\n```';
+      const result = markdownToHtml(markdown);
+      expect(result).toContain('<pre><code');
+      expect(result).toContain('const a = 1;');
+      expect(result).toContain('const b = 2;');
+      // Code lines must not be wrapped in paragraphs
+      expect(result).not.toMatch(/<p>const/);
+    });
+
+    it('should escape HTML in code blocks and keep the language class', () => {
+      const result = markdownToHtml('```html\n<div onclick="x">a & b</div>\n```');
+      expect(result).toContain('class="language-html"');
+      // DOMPurify's round-trip keeps < and & escaped; quotes stay literal in text nodes
+      expect(result).toContain('&lt;div onclick="x"&gt;a &amp; b&lt;/div&gt;');
+      expect(result).not.toContain('<div onclick');
+    });
+
+    it('should not italicize intraword underscores', () => {
+      const result = markdownToHtml('use my_var_name here');
+      expect(result).not.toContain('<em>');
+      expect(result).toContain('my_var_name');
+    });
+  });
+
   describe('style transformations', () => {
-    it('should apply bullet-optimized style', async () => {
+    it('should apply bullet-optimized style', () => {
       const markdown = '- Item 1\n- Item 2';
-      const result = await parseMarkdown(markdown, 'bullet-optimized');
+      const result = markdownToHtml(markdown, 'bullet-optimized');
       expect(result).toContain('✅');
     });
 
-    it('should apply bold-headers style', async () => {
+    it('should apply bold-headers style', () => {
       const markdown = '# Header';
-      const result = await parseMarkdown(markdown, 'bold-headers');
+      const result = markdownToHtml(markdown, 'bold-headers');
       expect(result).toContain('<strong');
       expect(result).toContain('Header');
     });
 
-    it('should not apply transformations for standard style', async () => {
+    it('should not apply transformations for standard style', () => {
       const markdown = '# Header\n- Item';
-      const result = await parseMarkdown(markdown, 'standard');
+      const result = markdownToHtml(markdown, 'standard');
       expect(result).toContain('<h1');
       expect(result).toContain('<ul');
     });
   });
 
-  describe('clipboard formatting', () => {
-    it('should apply inline styles for clipboard', async () => {
-      const markdown = '```javascript\nconst x = 1;\n```';
-      const result = await parseMarkdown(markdown, 'standard', true);
-      expect(result).toContain('hljs');
-      expect(result).toContain('style=');
-    });
-  });
-
   describe('sanitization', () => {
-    it('should sanitize malicious HTML', async () => {
+    it('should sanitize malicious HTML', () => {
       const markdown = '<script>alert("xss")</script>';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       expect(result).not.toContain('<script');
-    });
-
-    it('should re-sanitize HTML after clipboard style injection', async () => {
-      const markdown = '# Test';
-      const result = await parseMarkdown(markdown, 'standard', true);
-      // Should not contain any script tags even after DOM manipulation
-      expect(result).not.toContain('<script');
-      expect(result).not.toContain('javascript:');
     });
   });
 });
@@ -249,6 +269,21 @@ describe('markdownToSocialText', () => {
       expect(result).toContain(' 9 | line9');
       // Double digit lines should not be padded
       expect(result).toContain('10 | line10');
+    });
+
+    it('should preserve $& in code blocks', () => {
+      // $ patterns in code content must not be treated as replacement patterns
+      const markdown = '```\nprice = "$&" total\n```';
+      const result = markdownToSocialText(markdown);
+      expect(result).toContain('1 | price = "$&" total');
+      expect(result).not.toContain('CODEBLOCK0');
+    });
+
+    it('should preserve $$ and $& in inline code', () => {
+      const markdown = 'Use `a $$ b $& c` here';
+      const result = markdownToSocialText(markdown);
+      expect(result).toContain('`a $$ b $& c`');
+      expect(result).not.toContain('INLINECODE0');
     });
   });
 
@@ -425,5 +460,46 @@ describe('nested bold and italic patterns', () => {
     // Should contain both bold and italic
     expect(result).toContain('𝐛'); // bold b
     expect(result).toContain('𝘪'); // italic i
+  });
+});
+
+describe('markdownToSocialSegments', () => {
+  const joinSegments = (markdown: string, style?: Parameters<typeof markdownToSocialText>[1]) =>
+    markdownToSocialSegments(markdown, style)
+      .map((s) => (s.type === 'code' ? `\n${s.content}\n` : s.content))
+      .join('');
+
+  it('should return an empty array for empty input', () => {
+    expect(markdownToSocialSegments('')).toEqual([]);
+  });
+
+  it('should match markdownToSocialText output when joined', () => {
+    const markdown =
+      '# Launch\n\nSome **bold** and `inline code` text.\n\n```js\nconst x = 1;\nreturn x;\n```\n\n- bullet one\n- bullet two\n\n#hashtag line';
+    expect(joinSegments(markdown)).toBe(markdownToSocialText(markdown));
+  });
+
+  it('should classify hashtag-only lines as text, not code', () => {
+    const segments = markdownToSocialSegments('Update!\n\n#marketing #growth');
+    expect(segments).toHaveLength(1);
+    expect(segments[0].type).toBe('text');
+    expect(segments[0].content).toContain('#marketing #growth');
+  });
+
+  it('should emit a code segment for each fenced block', () => {
+    const segments = markdownToSocialSegments(
+      'Before\n\n```\nconst a = 1;\nconst b = 2;\n```\n\nAfter'
+    );
+    expect(segments).toHaveLength(3);
+    expect(segments[0]).toEqual({ type: 'text', content: 'Before\n\n' });
+    expect(segments[1].type).toBe('code');
+    expect(segments[1].content).toBe('1 | const a = 1;\n2 | const b = 2;');
+    expect(segments[2]).toEqual({ type: 'text', content: '\n\nAfter' });
+  });
+
+  it('should keep code content with $ patterns literal inside segments', () => {
+    const segments = markdownToSocialSegments('```\nconst s = "$&";\n```');
+    expect(segments.map((s) => s.type)).toEqual(['text', 'code', 'text']);
+    expect(segments[1].content).toBe('1 | const s = "$&";');
   });
 });

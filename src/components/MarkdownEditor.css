@@ -7,6 +7,45 @@
   flex-direction: column;
 }
 
+/* Formatting toolbar above the editor */
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 0.375rem 0.625rem;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--surface-color);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.editor-toolbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.editor-toolbar-btn:hover {
+  background-color: var(--secondary-hover);
+  color: var(--text-color);
+}
+
+.editor-toolbar-btn:active {
+  transform: scale(0.94);
+}
+
 .codemirror-editor {
   flex: 1;
   font-size: var(--text-base);
@@ -20,9 +59,7 @@
 
 /* Ensure codemirror doesn't clash with dark mode by forcing our vars if needed, but uiw handles themes */
 .cm-scroller {
-  font-family:
-    'JetBrains Mono', 'Fira Code', source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, 'Courier New', monospace;
   padding: 1.5rem 1rem;
   line-height: var(--leading-relaxed);
 }

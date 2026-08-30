@@ -1,16 +1,25 @@
 import React from 'react';
 import classNames from 'classnames';
 import { useModalAccessibility } from '../hooks/useModalAccessibility';
+import { markdownToSocialText, type FormatStyle } from '../utils/markdownParser';
 import './StyleModal.css';
 
 interface StyleModalProps {
   isOpen: boolean;
   onClose: () => void;
-  formatStyle: string;
-  setFormatStyle: (style: string) => void;
+  formatStyle: FormatStyle;
+  setFormatStyle: (style: FormatStyle) => void;
+  /** Current editor content, used for the live per-style previews. */
+  markdown?: string;
 }
 
-const STYLE_OPTIONS = [
+const STYLE_OPTIONS: Array<{
+  value: FormatStyle;
+  label: string;
+  description: string;
+  descId: string;
+  labelId: string;
+}> = [
   {
     value: 'standard',
     label: 'Standard Professional',
@@ -34,15 +43,24 @@ const STYLE_OPTIONS = [
   },
 ];
 
+// Shown when the editor is empty so the options still demonstrate the difference
+const PREVIEW_SAMPLE = '# Launch day\n\n- Fast\n- Simple\n\nRead more: https://example.com';
+
+const snippet = (text: string, max = 110): string =>
+  text.length > max ? `${text.slice(0, max).trimEnd()}…` : text;
+
 export const StyleModal: React.FC<StyleModalProps> = ({
   isOpen,
   onClose,
   formatStyle,
   setFormatStyle,
+  markdown,
 }) => {
   const { modalRef } = useModalAccessibility({ isOpen, onClose });
 
   if (!isOpen) return null;
+
+  const source = markdown?.trim() ? markdown : PREVIEW_SAMPLE;
 
   return (
     <div
@@ -61,22 +79,34 @@ export const StyleModal: React.FC<StyleModalProps> = ({
 
         <fieldset className="style-options">
           <legend className="visually-hidden">Select formatting style</legend>
-          {STYLE_OPTIONS.map(({ value, label, description, descId, labelId }) => (
+          {STYLE_OPTIONS.map((option) => (
             <label
-              key={value}
-              className={classNames('style-option', { active: formatStyle === value })}
+              key={option.value}
+              className={classNames('style-option', { active: formatStyle === option.value })}
             >
               <input
                 type="radio"
                 name="format-style"
-                value={value}
-                checked={formatStyle === value}
-                onChange={() => setFormatStyle(value)}
-                aria-describedby={descId}
+                value={option.value}
+                checked={formatStyle === option.value}
+                onChange={() => setFormatStyle(option.value)}
+                aria-describedby={option.descId}
               />
               <div>
-                <strong id={labelId}>{label}</strong>
-                <p id={descId}>{description}</p>
+                <strong id={option.labelId}>{option.label}</strong>
+                <p id={option.descId}>{option.description}</p>
+                <div className="style-option-preview" aria-hidden="true">
+                  <span className="style-preview-row">
+                    <span className="style-preview-tag">Markdown</span>
+                    <span className="style-preview-text mono">{snippet(source)}</span>
+                  </span>
+                  <span className="style-preview-row">
+                    <span className="style-preview-tag">Copied</span>
+                    <span className="style-preview-text">
+                      {snippet(markdownToSocialText(source, option.value))}
+                    </span>
+                  </span>
+                </div>
               </div>
             </label>
           ))}

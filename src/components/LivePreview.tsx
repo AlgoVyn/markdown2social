@@ -11,18 +11,27 @@ import { RedditPost } from './reddit/RedditPost';
 import { YouTubeDescription } from './youtube/YouTubeDescription';
 import { splitIntoThread } from '../utils/threadSplitter';
 import { getPlatformConfig } from '../utils/platforms';
-import 'highlight.js/styles/github.css';
+import type { FormatStyle } from '../utils/markdownParser';
 import './LivePreview.css';
 
 interface LivePreviewProps {
   contentText: string;
   platform: string;
+  markdown?: string;
+  formatStyle?: FormatStyle;
 }
 
 interface EmptyStateProps {
   platformName: string;
   hasContent: boolean;
 }
+
+// Visible reminder of which format style the preview (and copy) are using
+const STYLE_CHIP_LABELS: Record<FormatStyle, string> = {
+  standard: 'Standard',
+  'bullet-optimized': '✅ Bullets',
+  'bold-headers': 'Bold Headers',
+};
 
 const EmptyState: React.FC<EmptyStateProps> = ({ platformName, hasContent }) => (
   <div className="empty-state" role="status">
@@ -51,7 +60,10 @@ const EmptyState: React.FC<EmptyStateProps> = ({ platformName, hasContent }) => 
 );
 
 // Map platforms to their preview components
-const PLATFORM_COMPONENTS: Record<string, React.FC<{ contentText: string }>> = {
+const PLATFORM_COMPONENTS: Record<
+  string,
+  React.FC<{ contentText: string; markdown?: string; formatStyle?: FormatStyle }>
+> = {
   linkedin: LinkedInPost,
   bluesky: BlueskyPost,
   mastodon: MastodonPost,
@@ -62,7 +74,12 @@ const PLATFORM_COMPONENTS: Record<string, React.FC<{ contentText: string }>> = {
   youtube: YouTubeDescription,
 };
 
-export const LivePreview: React.FC<LivePreviewProps> = ({ contentText, platform }) => {
+export const LivePreview: React.FC<LivePreviewProps> = ({
+  contentText,
+  platform,
+  markdown,
+  formatStyle = 'standard',
+}) => {
   const platformConfig = getPlatformConfig(platform);
 
   const threadData = useMemo(() => {
@@ -84,7 +101,13 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ contentText, platform 
     // Handle platforms with dedicated components
     const PlatformComponent = PLATFORM_COMPONENTS[platform];
     if (PlatformComponent) {
-      return <PlatformComponent contentText={contentText} />;
+      return (
+        <PlatformComponent
+          contentText={contentText}
+          markdown={markdown}
+          formatStyle={formatStyle}
+        />
+      );
     }
 
     // Generic preview for unknown platforms
@@ -114,9 +137,14 @@ export const LivePreview: React.FC<LivePreviewProps> = ({ contentText, platform 
         <h2 className="preview-title" id="preview-heading">
           Live Preview
         </h2>
-        <span className="preview-badge" aria-label={`Platform: ${platformConfig.name}`}>
-          {platformConfig.name}
-        </span>
+        <div className="preview-badges">
+          <span className="style-chip" aria-label={`Format style: ${formatStyle}`}>
+            {STYLE_CHIP_LABELS[formatStyle]}
+          </span>
+          <span className="preview-badge" aria-label={`Platform: ${platformConfig.name}`}>
+            {platformConfig.name}
+          </span>
+        </div>
       </div>
       <div className="preview-content" role="region" aria-labelledby="preview-heading">
         {renderPreview()}

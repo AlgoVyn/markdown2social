@@ -26,7 +26,7 @@ export default defineConfig(({ mode }) => {
             // Separate vendor chunks for better caching
             'vendor-react': ['react', 'react-dom', 'react-router-dom'],
             'vendor-codemirror': ['@codemirror/lang-markdown', '@uiw/react-codemirror'],
-            'vendor-markdown': ['marked', 'highlight.js'],
+            'vendor-markdown': ['marked'],
             'vendor-utils': ['dompurify', 'classnames', 'lucide-react'],
           },
           // Asset naming for better caching

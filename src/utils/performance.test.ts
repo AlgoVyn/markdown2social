@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseMarkdown, markdownToSocialText } from './markdownParser';
+import { markdownToHtml, markdownToSocialText } from './markdownParser';
 import { splitIntoThread } from './threadSplitter';
 import { calculateCharacterCount } from './platforms';
 
@@ -80,14 +80,14 @@ describe('Performance Tests', () => {
       expect(end - start).toBeLessThan(500);
     });
 
-    it('should handle HTML clipboard formatting for large content', async () => {
+    it('should handle HTML rendering for large content', () => {
       const content = Array(100)
         .fill(null)
         .map((_, i) => `\`\`\`javascript\nconst code${i} = ${i};\n\`\`\``)
         .join('\n\n');
 
       const start = performance.now();
-      const result = await parseMarkdown(content, 'standard', true);
+      const result = markdownToHtml(content);
       const end = performance.now();
 
       expect(result).toBeTruthy();

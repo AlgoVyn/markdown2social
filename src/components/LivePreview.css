@@ -27,6 +27,22 @@
   line-height: var(--leading-tight);
 }
 
+.preview-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.style-chip {
+  font-size: var(--text-xs);
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+}
+
 .preview-badge {
   font-size: var(--text-xs);
   text-transform: uppercase;
@@ -49,6 +65,12 @@
   min-height: 0;
 }
 
+/* Center short previews vertically; auto margins collapse to 0 when the card
+   is taller than the pane, so the top never clips */
+.preview-content > * {
+  margin-block: auto;
+}
+
 .unsupported-platform {
   color: var(--text-secondary);
   font-style: italic;
@@ -64,34 +86,6 @@
   border-radius: 12px;
   padding: 20px;
   border: 1px solid var(--border-color);
-}
-
-.generic-preview-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.platform-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--primary-color);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: var(--font-bold);
-  font-size: 18px;
-}
-
-.platform-name {
-  font-weight: var(--font-semibold);
-  font-size: var(--text-base);
-  color: var(--text-color);
 }
 
 .generic-preview-content {

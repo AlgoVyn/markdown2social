@@ -1,11 +1,19 @@
 import React from 'react';
+import { FormattedContent } from '../FormattedContent';
+import type { FormatStyle } from '../../utils/markdownParser';
 import './MastodonPost.css';
 
 interface MastodonPostProps {
   contentText: string;
+  markdown?: string;
+  formatStyle?: FormatStyle;
 }
 
-export const MastodonPost: React.FC<MastodonPostProps> = ({ contentText }) => {
+export const MastodonPost: React.FC<MastodonPostProps> = ({
+  contentText,
+  markdown,
+  formatStyle,
+}) => {
   return (
     <article className="mastodon-post" aria-label="Mastodon post preview">
       <header className="mastodon-header">
@@ -21,11 +29,14 @@ export const MastodonPost: React.FC<MastodonPostProps> = ({ contentText }) => {
       </header>
 
       <div className="mastodon-content">
-        {contentText ? (
-          <div className="mastodon-text">{contentText}</div>
-        ) : (
-          <p className="mastodon-placeholder">What's on your mind?</p>
-        )}
+        <FormattedContent
+          contentText={contentText}
+          markdown={markdown}
+          formatStyle={formatStyle}
+          textClassName="mastodon-text"
+          placeholder="What's on your mind?"
+          placeholderClassName="mastodon-placeholder"
+        />
       </div>
 
       <div className="mastodon-meta">

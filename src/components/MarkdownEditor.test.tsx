@@ -38,6 +38,27 @@ describe('MarkdownEditor', () => {
       expect(screen.getByLabelText('Markdown editor')).toBeInTheDocument();
     });
 
+    it('should render the formatting toolbar with labeled buttons', () => {
+      render(<MarkdownEditor value="" onChange={mockOnChange} />);
+
+      const toolbar = screen.getByRole('toolbar', { name: 'Formatting tools' });
+      expect(toolbar).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Bold' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Italic' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Link' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Heading 1' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Bullet list' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Code block' })).toBeInTheDocument();
+    });
+
+    it('should tolerate toolbar clicks when the editor view is unavailable', async () => {
+      render(<MarkdownEditor value="content" onChange={mockOnChange} />);
+
+      // With CodeMirror mocked there is no view instance; clicking must not throw
+      await userEvent.click(screen.getByRole('button', { name: 'Bold' }));
+      expect(mockOnChange).not.toHaveBeenCalled();
+    });
+
     it('should render CodeMirror with correct props', () => {
       render(<MarkdownEditor value="# Test content" onChange={mockOnChange} />);
 

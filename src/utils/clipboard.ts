@@ -1,87 +1,38 @@
+import type { SocialSegment } from './markdownParser';
+
+const escapeHtml = (str: string): string =>
+  str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
 /**
- * Formats content for HTML clipboard with preserved whitespace for code blocks.
+ * Formats converted content for the HTML clipboard flavor.
  *
- * LinkedIn and other rich text editors support HTML clipboard format.
- * This function wraps code blocks in <pre> tags with styling to preserve indentation.
+ * Text segments become <p> paragraphs (blank lines → <br>); code segments —
+ * already identified structurally by the parser — become styled <pre> blocks
+ * that preserve indentation. No content-based guessing happens here: lines in
+ * prose that merely look like code (hashtags, dashes) stay paragraphs.
  *
- * @param text - The plain text content (already processed by markdownToSocialText)
+ * @param segments - Segments from markdownToSocialSegments
  * @returns HTML string formatted for clipboard
  */
-export const formatForHtmlClipboard = (text: string): string => {
-  if (!text) return '';
+export const formatForHtmlClipboard = (segments: SocialSegment[]): string => {
+  if (segments.length === 0) return '';
 
-  // Escape HTML special characters
-  const escapeHtml = (str: string): string =>
-    str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-
-  const lines = text.split('\n');
-  const result: string[] = [];
-  let inCodeBlock = false;
-  let codeBlockLines: string[] = [];
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const nextLine = lines[i + 1];
-
-    // Detect potential code block start (line with indentation or looks like code)
-    const isIndented = line.startsWith('    ') || line.startsWith('  ');
-    const hasCodeKeyword =
-      /^(def |class |if |for |while |import |from |const |let |var |function |return |#|\/\/|\/\*|\*|\+|-|\{)/.test(
-        line
-      );
-    const looksLikeCode = isIndented || hasCodeKeyword;
-
-    if (!inCodeBlock && looksLikeCode) {
-      // Check if next line is also indented or empty (potential code block)
-      const nextIsIndented = nextLine?.startsWith('    ') || nextLine?.startsWith('  ');
-      const nextIsEmpty = !nextLine || nextLine.trim() === '';
-
-      if (nextIsIndented || nextIsEmpty || hasCodeKeyword) {
-        inCodeBlock = true;
-        codeBlockLines = [line];
-        continue;
-      }
+  const parts = segments.map((segment) => {
+    if (segment.type === 'code') {
+      return wrapCodeBlock(segment.content.split('\n'));
     }
+    return segment.content
+      .split('\n')
+      .map((line) => (line.trim() === '' ? '<br>' : `<p>${escapeHtml(line)}</p>`))
+      .join('');
+  });
 
-    if (inCodeBlock) {
-      const isStillCode =
-        line.startsWith('    ') ||
-        line.startsWith('  ') ||
-        line.trim() === '' ||
-        /^(def |class |if |for |while |import |from |const |let |var |function |return |#|\/\/|\/\*|\*|\+|-|\{)/.test(
-          line
-        );
-
-      if (isStillCode) {
-        codeBlockLines.push(line);
-        continue;
-      } else {
-        // End of code block - wrap and add
-        result.push(wrapCodeBlock(codeBlockLines));
-        inCodeBlock = false;
-        codeBlockLines = [];
-      }
-    }
-
-    // Regular paragraph
-    if (line.trim() === '') {
-      result.push('<br>');
-    } else {
-      result.push(`<p>${escapeHtml(line)}</p>`);
-    }
-  }
-
-  // Don't forget any remaining code block
-  if (inCodeBlock && codeBlockLines.length > 0) {
-    result.push(wrapCodeBlock(codeBlockLines));
-  }
-
-  return result.join('');
+  return parts.join('');
 };
 
 /**
@@ -102,6 +53,22 @@ const wrapCodeBlock = (lines: string[]): string => {
 };
 
 /**
+ * Message of the error thrown when no clipboard API is available.
+ */
+export const CLIPBOARD_UNAVAILABLE_MESSAGE = 'Clipboard API not available';
+
+/**
+ * Thrown when the browser exposes no clipboard API at all. Callers branch on
+ * this class (not on the message text) to show a dedicated toast.
+ */
+export class ClipboardUnavailableError extends Error {
+  constructor() {
+    super(CLIPBOARD_UNAVAILABLE_MESSAGE);
+    this.name = 'ClipboardUnavailableError';
+  }
+}
+
+/**
  * Copies content to clipboard with both HTML and plain text formats.
  *
  * Uses the modern Clipboard API with ClipboardItem to write multiple formats.
@@ -109,18 +76,20 @@ const wrapCodeBlock = (lines: string[]): string => {
  * while plain text paste targets receive the text version.
  *
  * @param text - The plain text content (from markdownToSocialText)
+ * @param html - Optional pre-rendered HTML flavor (formatForHtmlClipboard output);
+ *   when omitted, the plain text is wrapped in paragraphs instead
  * @returns Promise that resolves when copy is complete
  */
-export const copyToClipboard = async (text: string): Promise<void> => {
+export const copyToClipboard = async (text: string, html?: string): Promise<void> => {
   if (!text) {
     throw new Error('No content to copy');
   }
 
   // Check if modern Clipboard API with write() is supported
   if (typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
-    const html = formatForHtmlClipboard(text);
+    const htmlPayload = html ?? formatForHtmlClipboard([{ type: 'text', content: text }]);
 
-    const htmlBlob = new Blob([html], { type: 'text/html' });
+    const htmlBlob = new Blob([htmlPayload], { type: 'text/html' });
     const textBlob = new Blob([text], { type: 'text/plain' });
 
     const clipboardItem = new ClipboardItem({
@@ -133,13 +102,6 @@ export const copyToClipboard = async (text: string): Promise<void> => {
     // Fallback to plain text only
     await navigator.clipboard.writeText(text);
   } else {
-    throw new Error('Clipboard API not available');
+    throw new ClipboardUnavailableError();
   }
-};
-
-/**
- * Checks if the browser supports rich text clipboard copying.
- */
-export const supportsRichTextClipboard = (): boolean => {
-  return typeof ClipboardItem !== 'undefined' && !!navigator.clipboard?.write;
 };

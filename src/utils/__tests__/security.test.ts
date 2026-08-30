@@ -1,42 +1,67 @@
 import { describe, it, expect } from 'vitest';
-import { parseMarkdown, markdownToSocialText } from '../markdownParser';
-import { sanitizeMarkdown, validateDrafts } from '../validation';
+import { markdownToHtml, markdownToSocialText } from '../markdownParser';
+import { validateDrafts } from '../validation';
+
+/**
+ * Security assertion: no element in the rendered HTML may carry a live
+ * event-handler attribute (onclick, onerror, ...).
+ */
+const expectNoEventHandlers = (html: string) => {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const eventAttrs = Array.from(doc.body.querySelectorAll('*')).flatMap((el) =>
+    Array.from(el.attributes).filter((attr) => attr.name.toLowerCase().startsWith('on'))
+  );
+  expect(eventAttrs).toHaveLength(0);
+};
 
 describe('Security - XSS Prevention', () => {
-  describe('parseMarkdown sanitization', () => {
-    it('should remove script tags', async () => {
+  describe('markdownToHtml sanitization', () => {
+    it('should remove script tags', () => {
       const markdown = '<script>alert("xss")</script>Hello';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       expect(result).not.toContain('<script');
       expect(result).not.toContain('alert');
       expect(result).toContain('Hello');
     });
 
-    it('should remove event handlers from HTML', async () => {
+    it('should remove event handlers from HTML', () => {
       const markdown = '<p onclick="alert(\'xss\')">Click me</p>';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       expect(result).not.toContain('onclick');
       expect(result).not.toContain('alert');
     });
 
-    it('should remove javascript: URLs', async () => {
+    it('should remove javascript: URLs', () => {
       const markdown = '[Click me](javascript:alert("xss"))';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       expect(result).not.toContain('javascript:');
     });
 
-    it('should sanitize nested malicious content', async () => {
+    it('should sanitize nested malicious content', () => {
       const markdown = '<div><script>alert(1)</script><p>Safe</p></div>';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       expect(result).not.toContain('<script');
       expect(result).toContain('Safe');
     });
 
-    it('should handle data: URLs safely', async () => {
+    it('should handle data: URLs safely', () => {
       const markdown = '<img src="data:text/html,<script>alert(1)</script>">';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       // DOMPurify should strip dangerous data URLs
       expect(result).not.toContain('data:text/html');
+    });
+
+    it('should not allow attribute injection through link URLs', () => {
+      const markdown = '[click](https://evil.com"onmouseover="alert(1))';
+      const result = markdownToHtml(markdown);
+      expectNoEventHandlers(result);
+    });
+
+    it('should render link URLs with spaces as inert text', () => {
+      const markdown = '[click](https://evil.com" onmouseover="alert`1`")';
+      const result = markdownToHtml(markdown);
+      expectNoEventHandlers(result);
+      expect(result).not.toMatch(/<a\s[^>]*onmouseover/i);
     });
   });
 
@@ -44,7 +69,7 @@ describe('Security - XSS Prevention', () => {
     it('should convert markdown formatting while preserving other content', () => {
       // markdownToSocialText produces plain text, not HTML, so script tags
       // are preserved as text (not executed). The security concern is only
-      // relevant when outputting HTML (handled by parseMarkdown).
+      // relevant when outputting HTML (handled by markdownToHtml).
       const markdown = '**Bold** <script>alert(1)</script>';
       const result = markdownToSocialText(markdown);
       expect(result).toContain('𝐁'); // Unicode bold
@@ -65,49 +90,6 @@ describe('Security - XSS Prevention', () => {
       // Links are converted to "text (url)" format
       expect(result).toContain('Link');
       expect(result).toContain('(javascript:alert(1))');
-    });
-  });
-
-  describe('sanitizeMarkdown utility', () => {
-    it('should remove script tags', () => {
-      const markdown = 'Hello<script>alert(1)</script>World';
-      const result = sanitizeMarkdown(markdown);
-      expect(result).not.toContain('<script');
-      expect(result).toContain('Hello');
-      expect(result).toContain('World');
-    });
-
-    it('should remove event handlers', () => {
-      const markdown = 'Text onmouseover="alert(1)" more text';
-      const result = sanitizeMarkdown(markdown);
-      expect(result).not.toContain('onmouseover');
-    });
-
-    it('should remove all event handler variants', () => {
-      const handlers = [
-        'onclick',
-        'onload',
-        'onerror',
-        'onmouseover',
-        'onfocus',
-        'onblur',
-        'onchange',
-        'onsubmit',
-      ];
-      handlers.forEach((handler) => {
-        const markdown = `<div ${handler}="alert(1)">Test</div>`;
-        const result = sanitizeMarkdown(markdown);
-        expect(result).not.toContain(handler);
-      });
-    });
-
-    it('should handle empty input', () => {
-      expect(sanitizeMarkdown('')).toBe('');
-    });
-
-    it('should handle input without malicious content', () => {
-      const markdown = 'Normal **markdown** content';
-      expect(sanitizeMarkdown(markdown)).toBe(markdown);
     });
   });
 
@@ -161,38 +143,38 @@ describe('Security - XSS Prevention', () => {
   });
 
   describe('URL handling security', () => {
-    it('should handle URLs with special characters', async () => {
+    it('should handle URLs with special characters', () => {
       const markdown = '[Link](https://example.com/path(1))';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       expect(result).toContain('https://example.com/path(1)');
     });
 
-    it('should sanitize URLs with javascript protocol', async () => {
+    it('should sanitize URLs with javascript protocol', () => {
       const markdown = '[Link](javascript:alert(1))';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       // DOMPurify should remove or neutralize javascript: URLs
       expect(result).not.toMatch(/javascript:/i);
     });
 
-    it('should handle data URLs safely', async () => {
+    it('should handle data URLs safely', () => {
       const markdown = '![Alt](data:image/svg+xml,<svg></svg>)';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       // Image tags might be stripped entirely based on DOMPurify config
       expect(result).not.toContain('data:image');
     });
   });
 
   describe('HTML entity encoding', () => {
-    it('should handle HTML entities properly', async () => {
+    it('should handle HTML entities properly', () => {
       const markdown = '&lt;script&gt;alert(1)&lt;/script&gt;';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       // Entities should be decoded or preserved safely
       expect(result).not.toContain('<script>');
     });
 
-    it('should handle mixed content safely', async () => {
+    it('should handle mixed content safely', () => {
       const markdown = 'Text <b>bold</b> <script>evil</script> more';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       expect(result).toContain('<b>bold</b>');
       expect(result).not.toContain('<script>');
       expect(result).not.toContain('evil');

@@ -1,11 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  DraftSchema,
-  DraftsArraySchema,
-  validateDrafts,
-  validateSingleDraft,
-  sanitizeMarkdown,
-} from './validation';
+import { DraftSchema, DraftsArraySchema, validateDrafts, validateSingleDraft } from './validation';
 
 describe('DraftSchema', () => {
   it('should validate a correct draft', () => {
@@ -141,56 +135,5 @@ describe('validateSingleDraft', () => {
 
   it('should return null for null input', () => {
     expect(validateSingleDraft(null)).toBeNull();
-  });
-});
-
-describe('sanitizeMarkdown', () => {
-  it('should remove script tags', () => {
-    const markdown = 'Hello<script>alert(1)</script>World';
-    expect(sanitizeMarkdown(markdown)).toBe('HelloWorld');
-  });
-
-  it('should remove event handlers', () => {
-    const markdown = '<div onclick="alert(1)">Text</div>';
-    expect(sanitizeMarkdown(markdown)).toBe('<div >Text</div>');
-  });
-
-  it('should remove onload handlers', () => {
-    const markdown = '<img src="x" onload="alert(1)">';
-    expect(sanitizeMarkdown(markdown)).toBe('<img src="x" >');
-  });
-
-  it('should handle empty string', () => {
-    expect(sanitizeMarkdown('')).toBe('');
-  });
-
-  it('should handle markdown without malicious content', () => {
-    const markdown = 'Normal **bold** text';
-    expect(sanitizeMarkdown(markdown)).toBe(markdown);
-  });
-
-  it('should remove multiple script tags', () => {
-    const markdown = '<script>1</script>A<script>2</script>B<script>3</script>';
-    expect(sanitizeMarkdown(markdown)).toBe('AB');
-  });
-
-  it('should handle script tags with attributes', () => {
-    const markdown = '<script type="text/javascript">alert(1)</script>';
-    expect(sanitizeMarkdown(markdown)).toBe('');
-  });
-
-  it('should handle complex malicious input', () => {
-    const markdown = `
-      Hello
-      <script>
-        fetch('/api/steal-data')
-      </script>
-      World
-    `;
-    const result = sanitizeMarkdown(markdown);
-    expect(result).toContain('Hello');
-    expect(result).toContain('World');
-    expect(result).not.toContain('<script');
-    expect(result).not.toContain('fetch');
   });
 });

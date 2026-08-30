@@ -1,11 +1,15 @@
 import React from 'react';
+import { FormattedContent } from '../FormattedContent';
+import type { FormatStyle } from '../../utils/markdownParser';
 import './BlueskyPost.css';
 
 interface BlueskyPostProps {
   contentText: string;
+  markdown?: string;
+  formatStyle?: FormatStyle;
 }
 
-export const BlueskyPost: React.FC<BlueskyPostProps> = ({ contentText }) => {
+export const BlueskyPost: React.FC<BlueskyPostProps> = ({ contentText, markdown, formatStyle }) => {
   return (
     <article className="bluesky-post" aria-label="Bluesky post preview">
       <header className="bluesky-header">
@@ -21,11 +25,14 @@ export const BlueskyPost: React.FC<BlueskyPostProps> = ({ contentText }) => {
       </header>
 
       <div className="bluesky-content">
-        {contentText ? (
-          <p className="bluesky-text">{contentText}</p>
-        ) : (
-          <p className="bluesky-placeholder">What's on your mind?</p>
-        )}
+        <FormattedContent
+          contentText={contentText}
+          markdown={markdown}
+          formatStyle={formatStyle}
+          textClassName="bluesky-text"
+          placeholder="What's on your mind?"
+          placeholderClassName="bluesky-placeholder"
+        />
       </div>
 
       <div className="bluesky-meta">

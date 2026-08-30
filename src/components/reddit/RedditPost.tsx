@@ -1,17 +1,15 @@
 import React from 'react';
+import { FormattedContent } from '../FormattedContent';
+import type { FormatStyle } from '../../utils/markdownParser';
 import './RedditPost.css';
 
 interface RedditPostProps {
   contentText: string;
+  markdown?: string;
+  formatStyle?: FormatStyle;
 }
 
-export const RedditPost: React.FC<RedditPostProps> = ({ contentText }) => {
-  // Format text to show markdown rendering similar to Reddit
-  const formattedContent = contentText
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/`(.+?)`/g, '<code>$1</code>');
-
+export const RedditPost: React.FC<RedditPostProps> = ({ contentText, markdown, formatStyle }) => {
   const voteCount = 1;
   const commentCount = 0;
 
@@ -42,11 +40,14 @@ export const RedditPost: React.FC<RedditPostProps> = ({ contentText }) => {
         <h3 className="reddit-title">Your Post Title</h3>
 
         <div className="reddit-body">
-          {contentText ? (
-            <div className="reddit-text" dangerouslySetInnerHTML={{ __html: formattedContent }} />
-          ) : (
-            <p className="reddit-placeholder">Enter your post content...</p>
-          )}
+          <FormattedContent
+            contentText={contentText}
+            markdown={markdown}
+            formatStyle={formatStyle}
+            textClassName="reddit-text"
+            placeholder="Enter your post content..."
+            placeholderClassName="reddit-placeholder"
+          />
         </div>
 
         <footer className="reddit-actions">

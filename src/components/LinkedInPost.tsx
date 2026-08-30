@@ -1,12 +1,20 @@
 import React from 'react';
 import { Share2, ThumbsUp, MessageSquare, Send, User } from 'lucide-react';
+import { FormattedContent } from './FormattedContent';
+import type { FormatStyle } from '../utils/markdownParser';
 import './LinkedInPost.css';
 
 interface LinkedInPostProps {
   contentText: string;
+  markdown?: string;
+  formatStyle?: FormatStyle;
 }
 
-export const LinkedInPost: React.FC<LinkedInPostProps> = ({ contentText }) => {
+export const LinkedInPost: React.FC<LinkedInPostProps> = ({
+  contentText,
+  markdown,
+  formatStyle = 'standard',
+}) => {
   return (
     <article className="linkedin-post" aria-label="LinkedIn post preview">
       <header className="post-header">
@@ -28,12 +36,12 @@ export const LinkedInPost: React.FC<LinkedInPostProps> = ({ contentText }) => {
       </header>
 
       <div className="post-content" aria-label="Post content">
-        {contentText.split('\n').map((line, i, arr) => (
-          <React.Fragment key={i}>
-            <span className="text-line">{line}</span>
-            {i < arr.length - 1 && <br />}
-          </React.Fragment>
-        ))}
+        <FormattedContent
+          contentText={contentText}
+          markdown={markdown}
+          formatStyle={formatStyle}
+          textClassName="linkedin-text"
+        />
       </div>
 
       <footer className="post-footer" aria-label="Post actions">

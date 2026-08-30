@@ -33,16 +33,10 @@ export const ThreadsIcon: React.FC<IconProps> = ({ size = 16, className }) => (
   </svg>
 );
 
-// Mastodon Icon - Multi-color with blue M symbol on both themes
+// Mastodon Icon - Multi-color with blue M symbol on both themes.
+// Decorative: the platform select option already carries the accessible name.
 export const MastodonIcon: React.FC<IconProps> = ({ size = 16, className }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 512 512"
-    className={className}
-    aria-label="Mastodon"
-    role="img"
-  >
+  <svg width={size} height={size} viewBox="0 0 512 512" className={className} aria-hidden="true">
     {/* Background - transparent (no fill) */}
     {/* Body/head shape - uses theme text color */}
     <path

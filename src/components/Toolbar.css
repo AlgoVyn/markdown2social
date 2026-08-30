@@ -38,6 +38,13 @@
   gap: 0.75rem;
 }
 
+/* Hide the toolbar copy action on small screens — the fixed bottom bar owns it */
+@media (max-width: 768px) {
+  .toolbar .action-button.primary {
+    display: none;
+  }
+}
+
 /* Action Buttons */
 .action-button {
   display: flex;

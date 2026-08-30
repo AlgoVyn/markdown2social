@@ -93,8 +93,60 @@ describe('LinkedInPost', () => {
       const content = 'First paragraph\n\nSecond paragraph';
       render(<LinkedInPost contentText={content} />);
 
+      // The plain-text fallback renders one <p> whose newlines are made
+      // visible by the pre-wrap style inherited from .post-content
       const contentElement = screen.getByLabelText('Post content');
-      expect(contentElement.querySelectorAll('br').length).toBeGreaterThan(0);
+      expect(contentElement.querySelector('p')?.textContent).toBe(content);
+    });
+  });
+
+  describe('markdown rendering', () => {
+    it('should render markdown as formatted HTML when markdown prop is provided', () => {
+      render(<LinkedInPost contentText="" markdown={'# Title\n\n**bold** text'} />);
+
+      const content = screen.getByLabelText('Post content');
+      expect(content.querySelector('h1')?.textContent).toBe('Title');
+      expect(content.querySelector('strong')?.textContent).toBe('bold');
+    });
+
+    it('should sanitize script tags in markdown', () => {
+      render(<LinkedInPost contentText="" markdown="**bold** <script>alert(1)</script>" />);
+
+      const content = screen.getByLabelText('Post content');
+      expect(content.querySelector('script')).toBeNull();
+      expect(content.querySelector('strong')?.textContent).toBe('bold');
+    });
+
+    it('should apply format style to rendered markdown', () => {
+      render(<LinkedInPost contentText="" markdown="- Item" formatStyle="bullet-optimized" />);
+
+      const content = screen.getByLabelText('Post content');
+      expect(content.textContent).toContain('✅');
+    });
+
+    it('should fall back to plain text rendering without markdown', () => {
+      render(<LinkedInPost contentText="Plain line" />);
+
+      const content = screen.getByLabelText('Post content');
+      expect(content.querySelector('strong')).toBeNull();
+      expect(content.textContent).toContain('Plain line');
+    });
+
+    it('should open rendered links in a new tab with noopener', () => {
+      render(<LinkedInPost contentText="" markdown={'[site](https://example.com)'} />);
+
+      const link = screen.getByLabelText('Post content').querySelector('a');
+      expect(link).not.toBeNull();
+      expect(link).toHaveAttribute('target', '_blank');
+      expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+    });
+
+    it('should render one code-line span per code block line', () => {
+      render(<LinkedInPost contentText="" markdown={'```\nconst a = 1;\nconst b = 2;\n```'} />);
+
+      const content = screen.getByLabelText('Post content');
+      expect(content.querySelectorAll('.code-line')).toHaveLength(2);
+      expect(content.querySelector('.code-line')?.textContent).toBe('const a = 1;');
     });
   });
 

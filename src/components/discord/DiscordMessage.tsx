@@ -1,20 +1,19 @@
 import React from 'react';
+import { FormattedContent } from '../FormattedContent';
+import type { FormatStyle } from '../../utils/markdownParser';
 import './DiscordMessage.css';
 
 interface DiscordMessageProps {
   contentText: string;
+  markdown?: string;
+  formatStyle?: FormatStyle;
 }
 
-export const DiscordMessage: React.FC<DiscordMessageProps> = ({ contentText }) => {
-  // Discord supports markdown formatting
-  const formattedContent = contentText
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/__(.+?)__/g, '<u>$1</u>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/_(.+?)_/g, '<em>$1</em>')
-    .replace(/`(.+?)`/g, '<code>$1</code>')
-    .replace(/```[\s\S]*?```/g, '<pre><code>$&</code></pre>');
-
+export const DiscordMessage: React.FC<DiscordMessageProps> = ({
+  contentText,
+  markdown,
+  formatStyle,
+}) => {
   return (
     <div className="discord-container" role="region" aria-label="Discord message preview">
       <div className="discord-channel-header">
@@ -37,11 +36,14 @@ export const DiscordMessage: React.FC<DiscordMessageProps> = ({ contentText }) =
             </span>
           </div>
 
-          {contentText ? (
-            <div className="discord-text" dangerouslySetInnerHTML={{ __html: formattedContent }} />
-          ) : (
-            <p className="discord-placeholder">Message #general</p>
-          )}
+          <FormattedContent
+            contentText={contentText}
+            markdown={markdown}
+            formatStyle={formatStyle}
+            textClassName="discord-text"
+            placeholder="Message #general"
+            placeholderClassName="discord-placeholder"
+          />
         </div>
       </div>
     </div>

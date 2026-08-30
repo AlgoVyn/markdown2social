@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseMarkdown, markdownToSocialText } from './markdownParser';
+import { markdownToHtml, markdownToSocialText } from './markdownParser';
 
 describe('markdownToSocialText - Edge Cases', () => {
   describe('nested formatting', () => {
@@ -245,54 +245,40 @@ describe('markdownToSocialText - Edge Cases', () => {
   });
 });
 
-describe('parseMarkdown - Edge Cases', () => {
-  describe('clipboard styling', () => {
-    it('should apply inline styles for code blocks when forClipboard is true', async () => {
-      const markdown = '```javascript\nconst x = 1;\n```';
-      const result = await parseMarkdown(markdown, 'standard', true);
-      expect(result).toContain('hljs');
-    });
-
-    it('should sanitize malicious scripts even with clipboard mode', async () => {
-      const markdown = '<script>alert("xss")</script>';
-      const result = await parseMarkdown(markdown, 'standard', true);
-      expect(result).not.toContain('<script');
-    });
-  });
-
+describe('markdownToHtml - Edge Cases', () => {
   describe('style transformations', () => {
-    it('should apply bold-headers style to multiple headers', async () => {
+    it('should apply bold-headers style to multiple headers', () => {
       const markdown = '# Header 1\n## Header 2\n### Header 3';
-      const result = await parseMarkdown(markdown, 'bold-headers');
+      const result = markdownToHtml(markdown, 'bold-headers');
       expect(result).toContain('<strong');
       expect(result).not.toContain('<h1');
       expect(result).not.toContain('<h2');
       expect(result).not.toContain('<h3');
     });
 
-    it('should apply bullet-optimized style to mixed lists', async () => {
+    it('should apply bullet-optimized style to mixed lists', () => {
       const markdown = '- Item 1\n* Item 2\n+ Item 3';
-      const result = await parseMarkdown(markdown, 'bullet-optimized');
+      const result = markdownToHtml(markdown, 'bullet-optimized');
       expect(result).toContain('✅');
     });
   });
 
   describe('HTML sanitization', () => {
-    it('should remove script tags', async () => {
+    it('should remove script tags', () => {
       const markdown = '<script>alert("xss")</script>';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       expect(result).not.toContain('<script');
     });
 
-    it('should remove event handlers', async () => {
+    it('should remove event handlers', () => {
       const markdown = '<div onclick="alert(\'xss\')">Click me</div>';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       expect(result).not.toContain('onclick');
     });
 
-    it('should allow safe HTML', async () => {
+    it('should allow safe HTML', () => {
       const markdown = '<strong>Valid bold</strong>';
-      const result = await parseMarkdown(markdown);
+      const result = markdownToHtml(markdown);
       expect(result).toContain('<strong');
     });
   });

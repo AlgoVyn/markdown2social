@@ -8,7 +8,8 @@ export {
 export type { PlatformConfig, CharacterCountStatus } from './platforms';
 
 // Markdown parsing
-export { parseMarkdown, markdownToSocialText } from './markdownParser';
+export { markdownToHtml, markdownToSocialText, markdownToSocialSegments } from './markdownParser';
+export type { FormatStyle, SocialSegment } from './markdownParser';
 
 // Thread splitting
 export { splitIntoThread, addThreadIndicators } from './threadSplitter';
@@ -18,13 +19,7 @@ export type { ThreadPost, SplitResult } from './threadSplitter';
 export { PLATFORM_TEMPLATES } from './templates';
 
 // Validation
-export {
-  DraftSchema,
-  DraftsArraySchema,
-  validateDrafts,
-  validateSingleDraft,
-  sanitizeMarkdown,
-} from './validation';
+export { DraftSchema, DraftsArraySchema, validateDrafts, validateSingleDraft } from './validation';
 export type { ValidatedDraft } from './validation';
 
 // ID generation

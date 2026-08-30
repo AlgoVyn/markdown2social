@@ -1,6 +1,8 @@
-import { marked } from 'marked';
-import hljs from 'highlight.js';
+import { Marked } from 'marked';
 import DOMPurify from 'dompurify';
+
+export type FormatStyle = 'standard' | 'bullet-optimized' | 'bold-headers';
+
 // DOMPurify configuration for strict sanitization
 const PURIFY_CONFIG = {
   ALLOWED_TAGS: [
@@ -13,6 +15,8 @@ const PURIFY_CONFIG = {
     'u',
     's',
     'strike',
+    'del',
+    'ins',
     'a',
     'ul',
     'ol',
@@ -44,115 +48,76 @@ const PURIFY_CONFIG = {
   SANITIZE_DOM: true,
 };
 
-// Clipboard-specific config that allows inline styles for syntax highlighting
-const CLIPBOARD_PURIFY_CONFIG = {
-  ...PURIFY_CONFIG,
-  ALLOWED_ATTR: [...PURIFY_CONFIG.ALLOWED_ATTR, 'style'],
-};
+// Dedicated instance so preview parsing never picks up global marked configuration.
+// breaks: true keeps single newlines as line breaks, matching how social
+// platforms render text.
+const previewParser = new Marked({ gfm: true, breaks: true });
 
-// Custom renderer to add line numbers to code blocks
-const renderer = new marked.Renderer();
+const escapeHtml = (str: string): string =>
+  str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 
-renderer.code = (code: string, language?: string, _escaped?: boolean): string => {
-  // Handle empty code blocks gracefully
-  if (!code || code.trim() === '') {
-    return `<pre style="display:flex;background:#f6f8fa;border-radius:6px;overflow-x:auto;margin:0;min-height:50px;"><code class="hljs language-plaintext" style="flex:1;padding:16px;font-family:monospace;font-size:14px;line-height:1.5;background:transparent;"></code></pre>`;
-  }
+// One span per line lets CSS counters number the lines in the preview,
+// mirroring the numbered code blocks markdownToSocialText produces for copy.
+previewParser.use({
+  renderer: {
+    code(code: string, infostring?: string): string {
+      const lang = infostring?.trim().split(/\s+/)[0] || 'plaintext';
+      const lines = code.replace(/\n$/, '').split('\n');
+      const body = lines
+        .map((line) => `<span class="code-line">${escapeHtml(line)}</span>`)
+        .join('');
+      return `<pre><code class="language-${escapeHtml(lang)}">${body}</code></pre>`;
+    },
+  },
+});
 
-  const lines = code.split('\n');
-  const lineNumberWidth = String(lines.length).length;
-
-  // Generate line numbers HTML
-  // Note: Hardcoded colors (#6a737d, #f6f8fa, #f0f3f6, #d0d7de) are optimized for light mode.
-  // Dark mode support would require theme-aware styling or CSS custom properties.
-  const lineNumbersHtml = lines
-    .map((_, index) => {
-      const lineNum = String(index + 1).padStart(lineNumberWidth, ' ');
-      return `<span style="display:block;color:#6a737d;text-align:right;padding-right:1em;user-select:none;">${lineNum}</span>`;
-    })
-    .join('');
-
-  // Get highlighted code
-  const lang = language || 'plaintext';
-  const validLang = hljs.getLanguage(lang) ? lang : 'plaintext';
-  const highlighted = hljs.highlight(code, { language: validLang }).value;
-
-  // Wrap the code in a div with line numbers and code side by side
-  return `<pre style="display:flex;background:#f6f8fa;border-radius:6px;overflow-x:auto;margin:0;"><div style="background:#f0f3f6;border-right:1px solid #d0d7de;padding:16px 8px;font-family:monospace;font-size:14px;line-height:1.5;">${lineNumbersHtml}</div><code class="hljs language-${validLang}" style="flex:1;padding:16px;font-family:monospace;font-size:14px;line-height:1.5;background:transparent;">${highlighted}</code></pre>`;
-};
-
-marked.use({ renderer });
-
-// CSS styles from highlight.js github theme - inlined for clipboard compatibility
-const CSS_STYLES: Record<string, string> = {
-  hljs: 'color:#24292e;background:#ffffff;',
-  'hljs-doctag': 'color:#d73a49;',
-  'hljs-keyword': 'color:#d73a49;',
-  'hljs-meta': 'color:#005cc5;',
-  'hljs-template-tag': 'color:#d73a49;',
-  'hljs-template-variable': 'color:#d73a49;',
-  'hljs-type': 'color:#d73a49;',
-  'hljs-variable': 'color:#005cc5;',
-  'hljs-title': 'color:#6f42c1;',
-  'hljs-title.class_': 'color:#6f42c1;',
-  'hljs-title.function_': 'color:#6f42c1;',
-  'hljs-attr': 'color:#005cc5;',
-  'hljs-attribute': 'color:#005cc5;',
-  'hljs-literal': 'color:#005cc5;',
-  'hljs-number': 'color:#005cc5;',
-  'hljs-operator': 'color:#005cc5;',
-  'hljs-regexp': 'color:#032f62;',
-  'hljs-string': 'color:#032f62;',
-  'hljs-built_in': 'color:#e36209;',
-  'hljs-symbol': 'color:#e36209;',
-  'hljs-comment': 'color:#6a737d;',
-  'hljs-code': 'color:#6a737d;',
-  'hljs-formula': 'color:#6a737d;',
-  'hljs-name': 'color:#22863a;',
-  'hljs-quote': 'color:#22863a;',
-  'hljs-selector-tag': 'color:#22863a;',
-  'hljs-selector-pseudo': 'color:#22863a;',
-  'hljs-subst': 'color:#24292e;',
-  'hljs-section': 'color:#005cc5;font-weight:bold;',
-  'hljs-bullet': 'color:#735c0f;',
-  'hljs-emphasis': 'color:#24292e;font-style:italic;',
-  'hljs-strong': 'color:#24292e;font-weight:bold;',
-};
-
-const applyInlineStyles = (html: string): string => {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-
-  doc.querySelectorAll('[class*="hljs"]').forEach((el) => {
-    const style = el.className
-      .split(' ')
-      .filter((cls) => CSS_STYLES[cls])
-      .map((cls) => CSS_STYLES[cls])
-      .join('');
-    if (style) el.setAttribute('style', style);
+// Links in the preview must open in a new tab: a same-tab navigation would
+// discard the editor state. rel="noopener noreferrer" isolates the opener.
+// Applied as a post-pass on sanitized output instead of a global DOMPurify
+// hook, so other sanitize callers in the app are never affected.
+const addLinkTargets = (html: string): string => {
+  if (!html.includes('<a')) return html;
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const links = doc.querySelectorAll('a');
+  if (links.length === 0) return html;
+  links.forEach((link) => {
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener noreferrer');
   });
-
-  return DOMPurify.sanitize(doc.body.innerHTML, CLIPBOARD_PURIFY_CONFIG);
+  return doc.body.innerHTML;
 };
 
-export const parseMarkdown = async (
-  markdown: string,
-  style: string = 'standard',
-  forClipboard: boolean = false
-): Promise<string> => {
-  let processed = markdown;
-
+/**
+ * Applies a format style to raw markdown before HTML rendering.
+ *
+ * markdownToSocialText implements the equivalent transformations in its own
+ * line loop (bullets → ✅/•, headers → bold) — keep the two paths in sync.
+ */
+const applyFormatStyle = (markdown: string, style: FormatStyle): string => {
   if (style === 'bullet-optimized') {
-    processed = processed.replace(/^[-*]\s/gm, '✅ ');
-  } else if (style === 'bold-headers') {
-    processed = processed.replace(/^#+\s+(.*$)/gm, '**$1**');
+    return markdown.replace(/^[-*]\s/gm, '✅ ');
   }
+  if (style === 'bold-headers') {
+    return markdown.replace(/^#+\s+(.*$)/gm, '**$1**');
+  }
+  return markdown;
+};
 
-  // marked.parse returns a Promise in v10+, await it properly
-  const rawHtml = await marked.parse(processed);
-  const cleanHtml = DOMPurify.sanitize(rawHtml, PURIFY_CONFIG);
-
-  return forClipboard ? applyInlineStyles(cleanHtml) : cleanHtml;
+/**
+ * Converts markdown to sanitized HTML for preview rendering.
+ *
+ * Output is always passed through DOMPurify, so it is safe to inject with
+ * dangerouslySetInnerHTML. Without async extensions marked returns a string
+ * synchronously.
+ */
+export const markdownToHtml = (markdown: string, style: FormatStyle = 'standard'): string => {
+  const rawHtml = previewParser.parse(applyFormatStyle(markdown, style)) as string;
+  return addLinkTargets(DOMPurify.sanitize(rawHtml, PURIFY_CONFIG));
 };
 
 /**
@@ -235,7 +200,30 @@ const DELIM_START = '\uE000';
 const DELIM_END = '\uE001';
 
 /**
- * Converts Markdown directly into plain text utilizing Unicode mathematical
+ * One run of converted content. Fenced code blocks become 'code' segments
+ * (already line-numbered exactly as they appear in the copied text); all
+ * other content is 'text'. Consumers that need to tell code apart from prose
+ * (the HTML clipboard flavor) work on segments; markdownToSocialText is the
+ * plain join of them.
+ */
+export interface SocialSegment {
+  type: 'text' | 'code';
+  content: string;
+}
+
+const numberCodeLines = (code: string): string => {
+  const codeLines = code.split('\n');
+  const lineNumberWidth = String(codeLines.length).length;
+  return codeLines
+    .map((line, index) => {
+      const lineNum = String(index + 1).padStart(lineNumberWidth, ' ');
+      return `${lineNum} | ${line}`;
+    })
+    .join('\n');
+};
+
+/**
+ * Converts markdown into ordered text/code segments with Unicode mathematical
  * symbols for bold/italic styling suitable for pasting into social media.
  *
  * PERFORMANCE NOTES:
@@ -243,8 +231,11 @@ const DELIM_END = '\uE001';
  * - Code blocks are extracted first to avoid processing overhead
  * - String builder pattern minimizes intermediate string allocations
  */
-export const markdownToSocialText = (markdown: string, style: string = 'standard'): string => {
-  if (!markdown) return '';
+export const markdownToSocialSegments = (
+  markdown: string,
+  style: FormatStyle = 'standard'
+): SocialSegment[] => {
+  if (!markdown) return [];
 
   // Phase 1: Extract and mask code content using single-pass replace with callback
   const codeBlocks: { lang: string; code: string }[] = [];
@@ -309,34 +300,34 @@ export const markdownToSocialText = (markdown: string, style: string = 'standard
   // Links: [text](url) -> text (url)
   text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1 ($2)');
 
-  // Phase 4: Restore code content
-  // Use string builder pattern for efficiency
-  let result = text;
-
-  // Restore inline codes
+  // Restore inline codes before splitting so they stay part of text segments.
+  // Replacements must be functions so code content containing $ patterns
+  // ($&, $`, $', $$) is inserted literally.
+  let restored = text;
   for (let i = 0; i < inlineCodes.length; i++) {
     const content = inlineCodes[i].slice(1, -1);
-    result = result.replace(
+    restored = restored.replace(
       new RegExp(`${DELIM_START}INLINECODE${i}${DELIM_END}`, 'g'),
-      `\`${content}\``
+      () => `\`${content}\``
     );
   }
 
-  // Restore code blocks with line numbers
-  for (let i = 0; i < codeBlocks.length; i++) {
-    const codeLines = codeBlocks[i].code.split('\n');
-    const lineNumberWidth = String(codeLines.length).length;
-    const numberedCode = codeLines
-      .map((line, index) => {
-        const lineNum = String(index + 1).padStart(lineNumberWidth, ' ');
-        return `${lineNum} | ${line}`;
-      })
-      .join('\n');
-    result = result.replace(
-      new RegExp(`${DELIM_START}CODEBLOCK${i}${DELIM_END}`, 'g'),
-      `\n${numberedCode}\n`
-    );
+  // Split on the code block sentinels; everything between them is prose.
+  const segments: SocialSegment[] = [];
+  const sentinelRegex = new RegExp(`${DELIM_START}CODEBLOCK(\\d+)${DELIM_END}`, 'g');
+  let lastIndex = 0;
+  for (const match of restored.matchAll(sentinelRegex)) {
+    const start = match.index ?? 0;
+    segments.push({ type: 'text', content: restored.slice(lastIndex, start) });
+    segments.push({ type: 'code', content: numberCodeLines(codeBlocks[Number(match[1])].code) });
+    lastIndex = start + match[0].length;
   }
+  segments.push({ type: 'text', content: restored.slice(lastIndex) });
 
-  return result;
+  return segments;
 };
+
+export const markdownToSocialText = (markdown: string, style: FormatStyle = 'standard'): string =>
+  markdownToSocialSegments(markdown, style)
+    .map((segment) => (segment.type === 'code' ? `\n${segment.content}\n` : segment.content))
+    .join('');

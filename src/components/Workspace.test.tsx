@@ -4,6 +4,23 @@ import { screen, waitFor, act } from '@testing-library/react';
 import { renderWithRouter } from '../test/test-utils';
 import userEvent from '@testing-library/user-event';
 
+// Mock CodeMirror so tests can edit content through a plain textarea
+vi.mock('@uiw/react-codemirror', () => ({
+  default: vi.fn(({ value, onChange }) => (
+    <textarea
+      data-testid="codemirror-mock"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+    />
+  )),
+}));
+
+// Mock the markdown language extension
+vi.mock('@codemirror/lang-markdown', () => ({
+  markdown: vi.fn(() => []),
+  markdownLanguage: {},
+}));
+
 describe('Workspace', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -187,8 +204,8 @@ describe('Workspace', () => {
       if (copyButton) {
         await userEvent.click(copyButton);
 
-        // Button should show loading state
-        expect(screen.getByText('Copying...')).toBeInTheDocument();
+        // Toolbar and mobile bar buttons both show the loading state
+        expect(screen.getAllByText('Copying...').length).toBeGreaterThan(0);
 
         // Advance timers to complete the copy
         await act(async () => {
@@ -324,7 +341,7 @@ describe('Workspace', () => {
           vi.advanceTimersByTime(200);
         });
 
-        expect(screen.getByText('No drafts saved yet. Start typing to save!')).toBeInTheDocument();
+        expect(screen.getByText('No drafts saved yet')).toBeInTheDocument();
       }
     });
   });
@@ -358,19 +375,30 @@ describe('Workspace', () => {
   });
 
   describe('auto-save functionality', () => {
-    it('should save draft after debounce timeout', async () => {
-      const mockSetItem = vi.fn();
+    const mockLocalStorage = (setItem: ReturnType<typeof vi.fn>) => {
       Object.defineProperty(window, 'localStorage', {
         value: {
           getItem: vi.fn(),
-          setItem: mockSetItem,
+          setItem,
           removeItem: vi.fn(),
           clear: vi.fn(),
         },
         writable: true,
       });
+    };
+
+    it('should save draft after debounce timeout once content is edited', async () => {
+      const mockSetItem = vi.fn();
+      mockLocalStorage(mockSetItem);
+
+      // advanceTimers lets userEvent's internal waits progress under fake timers
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
 
       renderWithRouter();
+
+      // Edit the content so a draft is worth saving
+      const editor = screen.getByTestId('codemirror-mock') as HTMLTextAreaElement;
+      await user.type(editor, ' Hello');
 
       // Fast-forward past the 2-second debounce
       await act(async () => {
@@ -380,6 +408,20 @@ describe('Workspace', () => {
       await waitFor(() => {
         expect(mockSetItem).toHaveBeenCalledWith('marksocial-drafts', expect.any(String));
       });
+    });
+
+    it('should not save a draft on mount before any edit', async () => {
+      const mockSetItem = vi.fn();
+      mockLocalStorage(mockSetItem);
+
+      renderWithRouter();
+
+      // No edits — fast-forwarding past the debounce must not persist anything
+      await act(async () => {
+        vi.advanceTimersByTime(3000);
+      });
+
+      expect(mockSetItem).not.toHaveBeenCalledWith('marksocial-drafts', expect.any(String));
     });
 
     it('should clear timeout on unmount', () => {

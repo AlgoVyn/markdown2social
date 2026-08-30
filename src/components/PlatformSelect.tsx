@@ -74,7 +74,7 @@ export const PlatformSelect: React.FC<PlatformSelectProps> = ({ value, onChange 
         aria-expanded={isOpen}
         aria-label="Select social media platform"
       >
-        {SelectedIcon && <SelectedIcon size={18} className="platform-icon" />}
+        {SelectedIcon && <SelectedIcon size={16} className="platform-icon" />}
         <span className="platform-name">{selectedConfig?.name}</span>
         <svg
           className={`platform-select-arrow ${isOpen ? 'open' : ''}`}
@@ -99,7 +99,7 @@ export const PlatformSelect: React.FC<PlatformSelectProps> = ({ value, onChange 
                 className={`platform-select-option ${value === key ? 'selected' : ''}`}
                 onClick={() => handleSelect(key)}
               >
-                {Icon && <Icon size={18} className="platform-icon" />}
+                {Icon && <Icon size={16} className="platform-icon" />}
                 <span className="platform-name">{config.name}</span>
               </li>
             );

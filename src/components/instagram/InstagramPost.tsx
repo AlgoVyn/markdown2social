@@ -1,11 +1,19 @@
 import React from 'react';
+import { FormattedContent } from '../FormattedContent';
+import type { FormatStyle } from '../../utils/markdownParser';
 import './InstagramPost.css';
 
 interface InstagramPostProps {
   contentText: string;
+  markdown?: string;
+  formatStyle?: FormatStyle;
 }
 
-export const InstagramPost: React.FC<InstagramPostProps> = ({ contentText }) => {
+export const InstagramPost: React.FC<InstagramPostProps> = ({
+  contentText,
+  markdown,
+  formatStyle,
+}) => {
   // Instagram doesn't support clickable links in captions (only in bio)
   const hasLinks = /https?:\/\/[^\s]+/.test(contentText);
 
@@ -110,11 +118,14 @@ export const InstagramPost: React.FC<InstagramPostProps> = ({ contentText }) => 
 
         <div className="instagram-caption">
           <span className="instagram-caption-username">username</span>
-          {contentText ? (
-            <span className="instagram-caption-text">{contentText}</span>
-          ) : (
-            <span className="instagram-caption-placeholder">Write a caption...</span>
-          )}
+          <FormattedContent
+            contentText={contentText}
+            markdown={markdown}
+            formatStyle={formatStyle}
+            textClassName="instagram-caption-text"
+            placeholder="Write a caption..."
+            placeholderClassName="instagram-caption-placeholder"
+          />
         </div>
 
         {hasLinks && (

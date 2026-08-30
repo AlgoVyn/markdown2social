@@ -1,5 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { formatForHtmlClipboard, copyToClipboard, supportsRichTextClipboard } from './clipboard';
+import {
+  formatForHtmlClipboard,
+  copyToClipboard,
+  ClipboardUnavailableError,
+  CLIPBOARD_UNAVAILABLE_MESSAGE,
+} from './clipboard';
+import { markdownToSocialSegments } from './markdownParser';
 
 describe('clipboard utilities', () => {
   beforeEach(() => {
@@ -8,62 +14,70 @@ describe('clipboard utilities', () => {
 
   describe('formatForHtmlClipboard', () => {
     it('should return empty string for empty input', () => {
-      expect(formatForHtmlClipboard('')).toBe('');
+      expect(formatForHtmlClipboard([])).toBe('');
     });
 
     it('should wrap plain text in paragraph tags', () => {
-      const result = formatForHtmlClipboard('Hello world');
+      const result = formatForHtmlClipboard([{ type: 'text', content: 'Hello world' }]);
       expect(result).toBe('<p>Hello world</p>');
     });
 
     it('should convert empty lines to <br> tags', () => {
-      const result = formatForHtmlClipboard('Line 1\n\nLine 2');
+      const result = formatForHtmlClipboard([{ type: 'text', content: 'Line 1\n\nLine 2' }]);
       expect(result).toContain('<p>Line 1</p>');
       expect(result).toContain('<br>');
       expect(result).toContain('<p>Line 2</p>');
     });
 
-    it('should wrap indented code blocks in <pre> tags', () => {
-      const code = 'def hello():\n    print("world")';
-      const result = formatForHtmlClipboard(code);
+    it('should wrap code segments in <pre> tags', () => {
+      const result = formatForHtmlClipboard([{ type: 'code', content: '1 | def hello():' }]);
       expect(result).toContain('<pre');
       expect(result).toContain('</pre>');
       expect(result).toContain('white-space:pre');
     });
 
-    it('should preserve indentation in code blocks', () => {
-      const code = '    indented_line\n        more_indented';
-      const result = formatForHtmlClipboard(code);
-      // The content should have preserved spaces
+    it('should preserve indentation and escape HTML in code segments', () => {
+      const result = formatForHtmlClipboard([
+        { type: 'code', content: '1 |     indented_line\n2 | const x = "<div>"' },
+      ]);
       expect(result).toContain('    indented_line');
-      expect(result).toContain('        more_indented');
+      expect(result).toContain('&lt;div&gt;');
     });
 
-    it('should escape HTML special characters in content', () => {
-      const result = formatForHtmlClipboard('Text with <script> & "quotes"');
+    it('should escape HTML special characters in text segments', () => {
+      const result = formatForHtmlClipboard([
+        { type: 'text', content: 'Text with <script> & "quotes"' },
+      ]);
       expect(result).toContain('&lt;script&gt;');
       expect(result).toContain('&amp;');
       expect(result).toContain('&quot;quotes&quot;');
     });
 
-    it('should escape HTML in code blocks', () => {
-      const code = 'const x = "<div>"';
-      const result = formatForHtmlClipboard(code);
-      expect(result).toContain('&lt;div&gt;');
+    it('should interleave paragraphs and pre blocks for mixed segments', () => {
+      const result = formatForHtmlClipboard([
+        { type: 'text', content: 'Before\n' },
+        { type: 'code', content: '1 | code();' },
+        { type: 'text', content: '\nAfter' },
+      ]);
+      expect(result).toBe(
+        '<p>Before</p><br><pre style="margin:8px 0;padding:12px;background:#f6f8fa;border-radius:6px;font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;font-size:85%;line-height:1.45;white-space:pre;word-wrap:normal;overflow-x:auto;color:#24292e;">1 | code();</pre><br><p>After</p>'
+      );
     });
 
-    it('should handle Python-style code blocks', () => {
-      const code = 'def hello():\n    if True:\n        print("hi")\n    return';
-      const result = formatForHtmlClipboard(code);
-      expect(result).toContain('<pre');
-      expect(result).toContain('def hello():');
+    it('should not treat hashtag or dash lines as code (regression)', () => {
+      const markdown = 'Exciting update!\n\nWe just shipped something big.\n\n#marketing #growth';
+      const result = formatForHtmlClipboard(markdownToSocialSegments(markdown));
+      expect(result).not.toContain('<pre');
+      expect(result).toContain('<p>#marketing #growth</p>');
     });
 
-    it('should handle JavaScript-style code blocks', () => {
-      const code = 'function test() {\n    const x = 1;\n    return x;\n}';
-      const result = formatForHtmlClipboard(code);
+    it('should produce <pre> only for real fenced code blocks (integration)', () => {
+      const markdown = 'Intro here\n\n```js\nconst x = 1;\n```\n\nOutro #tag';
+      const result = formatForHtmlClipboard(markdownToSocialSegments(markdown));
       expect(result).toContain('<pre');
-      expect(result).toContain('function test()');
+      expect(result).toContain('1 | const x = 1;');
+      expect(result).toContain('<p>Intro here</p>');
+      expect(result).toContain('<p>Outro #tag</p>');
     });
   });
 
@@ -118,7 +132,7 @@ describe('clipboard utilities', () => {
       (globalThis as any).ClipboardItem = originalClipboardItem;
     });
 
-    it('should throw error when clipboard API is not available', async () => {
+    it('should throw ClipboardUnavailableError when clipboard API is not available', async () => {
       const originalWrite = navigator.clipboard.write;
       const originalWriteText = navigator.clipboard.writeText;
 
@@ -131,7 +145,8 @@ describe('clipboard utilities', () => {
         writable: true,
       });
 
-      await expect(copyToClipboard('Test')).rejects.toThrow('Clipboard API not available');
+      await expect(copyToClipboard('Test')).rejects.toThrow(CLIPBOARD_UNAVAILABLE_MESSAGE);
+      await expect(copyToClipboard('Test')).rejects.toBeInstanceOf(ClipboardUnavailableError);
 
       // Restore
       Object.defineProperty(navigator.clipboard, 'write', {
@@ -143,11 +158,8 @@ describe('clipboard utilities', () => {
         writable: true,
       });
     });
-  });
 
-  describe('supportsRichTextClipboard', () => {
-    it('should return true when ClipboardItem and clipboard.write are available', () => {
-      // Ensure both ClipboardItem and clipboard.write are available
+    it('should use the provided html flavor when given', async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (typeof (globalThis as any).ClipboardItem === 'undefined') {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -155,43 +167,19 @@ describe('clipboard utilities', () => {
           constructor(public data: Record<string, Blob>) {}
         };
       }
-      // Ensure clipboard.write is defined
-      if (!navigator.clipboard.write) {
-        Object.defineProperty(navigator.clipboard, 'write', {
-          value: vi.fn(),
-          writable: true,
-        });
-      }
-      expect(supportsRichTextClipboard()).toBe(true);
-    });
 
-    it('should return false when ClipboardItem is not available', () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const originalClipboardItem = (globalThis as any).ClipboardItem;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (globalThis as any).ClipboardItem = undefined;
-
-      expect(supportsRichTextClipboard()).toBe(false);
-
-      // Restore
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (globalThis as any).ClipboardItem = originalClipboardItem;
-    });
-
-    it('should return false when clipboard.write is not available', () => {
-      const originalWrite = navigator.clipboard.write;
+      const mockWrite = vi.fn().mockResolvedValue(undefined);
       Object.defineProperty(navigator.clipboard, 'write', {
-        value: undefined,
+        value: mockWrite,
         writable: true,
       });
 
-      expect(supportsRichTextClipboard()).toBe(false);
+      await copyToClipboard('Plain', '<p><strong>Rich</strong></p>');
 
-      // Restore
-      Object.defineProperty(navigator.clipboard, 'write', {
-        value: originalWrite,
-        writable: true,
-      });
+      const item = mockWrite.mock.calls[0][0][0] as { data: Record<string, Blob> };
+      const htmlBlob = item.data['text/html'];
+      expect(htmlBlob.type).toBe('text/html');
+      expect(await htmlBlob.text()).toBe('<p><strong>Rich</strong></p>');
     });
   });
 });

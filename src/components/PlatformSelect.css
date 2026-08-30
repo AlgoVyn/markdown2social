@@ -57,11 +57,12 @@
   }
 }
 
-/* Platform icon - sized to match other toolbar icons */
+/* Platform icon - filled brand glyphs read heavier than outline icons,
+   so they sit slightly smaller than the toolbar's 18px lucide icons */
 .platform-icon {
   flex-shrink: 0;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   box-sizing: content-box;
   color: var(--text-color);
   transition: all var(--transition-fast);

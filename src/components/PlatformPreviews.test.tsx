@@ -197,7 +197,7 @@ describe('Platform Preview Components', () => {
     });
 
     it('should format markdown bold as strong HTML', () => {
-      render(<RedditPost contentText="**Bold text**" />);
+      render(<RedditPost contentText="**Bold text**" markdown="**Bold text**" />);
 
       const strongElement = document.querySelector('strong');
       expect(strongElement).toBeInTheDocument();
@@ -205,7 +205,7 @@ describe('Platform Preview Components', () => {
     });
 
     it('should format markdown italic as em HTML', () => {
-      render(<RedditPost contentText="*Italic text*" />);
+      render(<RedditPost contentText="*Italic text*" markdown="*Italic text*" />);
 
       const emElement = document.querySelector('em');
       expect(emElement).toBeInTheDocument();
@@ -255,9 +255,9 @@ describe('Platform Preview Components', () => {
     it('should highlight hashtags in content', () => {
       const { container } = render(<YouTubeDescription contentText="#test" />);
 
-      const hashtagSpan = container.querySelector('.yt-hashtag');
-      expect(hashtagSpan).toBeInTheDocument();
-      expect(hashtagSpan).toHaveTextContent('#test');
+      const hashtagPill = container.querySelector('.youtube-hashtag-pill');
+      expect(hashtagPill).toBeInTheDocument();
+      expect(hashtagPill).toHaveTextContent('#test');
     });
 
     it('should have subscribe button', () => {
@@ -303,7 +303,7 @@ describe('Platform Preview Components', () => {
     });
 
     it('should format bold markdown as strong HTML', () => {
-      render(<DiscordMessage contentText="**bold**" />);
+      render(<DiscordMessage contentText="**bold**" markdown="**bold**" />);
 
       const strongElement = document.querySelector('strong');
       expect(strongElement).toBeInTheDocument();
@@ -311,7 +311,7 @@ describe('Platform Preview Components', () => {
     });
 
     it('should format italic markdown as em HTML', () => {
-      render(<DiscordMessage contentText="*italic*" />);
+      render(<DiscordMessage contentText="*italic*" markdown="*italic*" />);
 
       const emElement = document.querySelector('em');
       expect(emElement).toBeInTheDocument();
@@ -319,19 +319,36 @@ describe('Platform Preview Components', () => {
     });
 
     it('should format code markdown as code HTML', () => {
-      render(<DiscordMessage contentText="`code`" />);
+      render(<DiscordMessage contentText="`code`" markdown="`code`" />);
 
       const codeElement = document.querySelector('code');
       expect(codeElement).toBeInTheDocument();
       expect(codeElement).toHaveTextContent('code');
     });
 
-    it('should format underline markdown as u HTML', () => {
-      render(<DiscordMessage contentText="__underline__" />);
+    it('should format strikethrough markdown as del HTML', () => {
+      render(<DiscordMessage contentText="~~struck~~" markdown="~~struck~~" />);
 
-      const uElement = document.querySelector('u');
-      expect(uElement).toBeInTheDocument();
-      expect(uElement).toHaveTextContent('underline');
+      const delElement = document.querySelector('del');
+      expect(delElement).toBeInTheDocument();
+      expect(delElement).toHaveTextContent('struck');
+    });
+
+    it('should sanitize injected HTML in the markdown prop', () => {
+      render(<DiscordMessage contentText="" markdown='<img src=x onerror="alert(1)">**safe**' />);
+
+      const region = screen.getByLabelText('Discord message preview');
+      expect(region.querySelector('img')).toBeNull();
+      expect(region.querySelector('script')).toBeNull();
+      expect(region.querySelector('strong')?.textContent).toBe('safe');
+    });
+
+    it('should render plain contentText as inert text, not HTML', () => {
+      render(<DiscordMessage contentText='<img src=x onerror="alert(1)">' />);
+
+      const region = screen.getByLabelText('Discord message preview');
+      expect(region.querySelector('img')).toBeNull();
+      expect(region.textContent).toContain('<img src=x');
     });
   });
 });

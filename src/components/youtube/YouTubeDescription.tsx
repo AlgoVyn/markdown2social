@@ -1,18 +1,19 @@
 import React from 'react';
+import { FormattedContent } from '../FormattedContent';
+import type { FormatStyle } from '../../utils/markdownParser';
 import './YouTubeDescription.css';
 
 interface YouTubeDescriptionProps {
   contentText: string;
+  markdown?: string;
+  formatStyle?: FormatStyle;
 }
 
-export const YouTubeDescription: React.FC<YouTubeDescriptionProps> = ({ contentText }) => {
-  // Format hashtags to be highlighted
-  const formatContent = (text: string) => {
-    return text.replace(/(#\w+)/g, '<span class="yt-hashtag">$1</span>');
-  };
-
-  const formattedContent = formatContent(contentText);
-
+export const YouTubeDescription: React.FC<YouTubeDescriptionProps> = ({
+  contentText,
+  markdown,
+  formatStyle,
+}) => {
   // Extract hashtags for display
   const hashtags = contentText.match(/#\w+/g) || [];
 
@@ -47,11 +48,14 @@ export const YouTubeDescription: React.FC<YouTubeDescriptionProps> = ({ contentT
         </div>
 
         <div className="youtube-description-content">
-          {contentText ? (
-            <div className="youtube-text" dangerouslySetInnerHTML={{ __html: formattedContent }} />
-          ) : (
-            <p className="youtube-placeholder">Enter your video description...</p>
-          )}
+          <FormattedContent
+            contentText={contentText}
+            markdown={markdown}
+            formatStyle={formatStyle}
+            textClassName="youtube-text"
+            placeholder="Enter your video description..."
+            placeholderClassName="youtube-placeholder"
+          />
         </div>
 
         {hashtags.length > 0 && (

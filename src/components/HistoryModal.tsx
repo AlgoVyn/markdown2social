@@ -1,4 +1,5 @@
 import React from 'react';
+import { Clock } from 'lucide-react';
 import { Draft } from '../hooks/useHistory';
 import { useModalAccessibility } from '../hooks/useModalAccessibility';
 import './HistoryModal.css';
@@ -44,9 +45,14 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
 
         <div className="history-list" role="list" aria-label="Saved drafts">
           {drafts.length === 0 ? (
-            <p className="no-history" role="status">
-              No drafts saved yet. Start typing to save!
-            </p>
+            <div className="no-history" role="status">
+              <Clock size={40} strokeWidth={1.5} aria-hidden="true" className="no-history-icon" />
+              <p className="no-history-title">No drafts saved yet</p>
+              <p className="no-history-hint">
+                Start typing to save! Edits are captured automatically a moment after you stop
+                typing.
+              </p>
+            </div>
           ) : (
             drafts.map((draft, index) => (
               <div key={draft.id} className="history-item" role="listitem">

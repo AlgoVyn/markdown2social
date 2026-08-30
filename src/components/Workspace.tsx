@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Copy, Loader2 } from 'lucide-react';
 import { Toolbar } from './Toolbar';
 import { MarkdownEditor } from './MarkdownEditor';
 import { LivePreview } from './LivePreview';
@@ -9,7 +10,16 @@ import { HistoryModal } from './HistoryModal';
 import { ToastContainer } from './Toast';
 import { ErrorBoundary } from './ErrorBoundary';
 import { SEO } from './SEO';
-import { markdownToSocialText } from '../utils/markdownParser';
+import {
+  markdownToSocialText,
+  markdownToSocialSegments,
+  type FormatStyle,
+} from '../utils/markdownParser';
+import {
+  copyToClipboard,
+  formatForHtmlClipboard,
+  ClipboardUnavailableError,
+} from '../utils/clipboard';
 import { PLATFORM_CONFIGS } from '../utils/platforms';
 import { PLATFORM_TEMPLATES } from '../utils/templates';
 import { useHistory } from '../hooks/useHistory';
@@ -56,12 +66,16 @@ export const Workspace: React.FC<WorkspaceProps> = ({ initialPlatform = 'default
     () => PLATFORM_TEMPLATES[initialPlatformValue] || PLATFORM_TEMPLATES.linkedin
   );
   const [platform, setPlatformState] = useState(initialPlatformValue);
+  // Content present on first render; auto-save should only persist user edits
+  const initialMarkdownRef = useRef(markdown);
   const seoPlatform = initialPlatform === 'default' ? 'default' : platform;
-  const [formatStyle, setFormatStyle] = useState('standard');
+  const [formatStyle, setFormatStyle] = useState<FormatStyle>('standard');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isCopying, setIsCopying] = useState(false);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  // Which pane fills the screen on narrow viewports (segmented control)
+  const [mobileView, setMobileView] = useState<'editor' | 'preview'>('editor');
   const { drafts, saveDraft, loadError, clearLoadError } = useHistory();
   const { toasts, addToast, removeToast } = useToast();
 
@@ -75,15 +89,30 @@ export const Workspace: React.FC<WorkspaceProps> = ({ initialPlatform = 'default
     }
   }, [platformParam, searchParams, setSearchParams]);
 
+  const socialSegments = useMemo(
+    () => markdownToSocialSegments(markdown, formatStyle),
+    [markdown, formatStyle]
+  );
+
   const socialPreview = useMemo(
     () => markdownToSocialText(markdown, formatStyle),
     [markdown, formatStyle]
   );
 
+  // HTML flavor for the clipboard, derived from the same segments as the
+  // plain text so the two flavors always agree on what is code
+  const clipboardHtml = useMemo(() => formatForHtmlClipboard(socialSegments), [socialSegments]);
+
   useEffect(() => {
     // Clear any existing timeout
     if (pendingSaveRef.current) {
       clearTimeout(pendingSaveRef.current);
+      pendingSaveRef.current = null;
+    }
+
+    // Skip the initial mount save — untouched content is not a draft yet
+    if (markdown === initialMarkdownRef.current) {
+      return;
     }
 
     // Set new timeout
@@ -119,25 +148,26 @@ export const Workspace: React.FC<WorkspaceProps> = ({ initialPlatform = 'default
   };
 
   const handleCopy = useCallback(async () => {
-    if (!navigator.clipboard?.writeText) {
-      addToast('Clipboard API not available in your browser', 'error');
-      return;
-    }
-
     setIsCopying(true);
     try {
-      await navigator.clipboard.writeText(socialPreview);
+      // Writes both text/plain and text/html so rich editors keep formatting
+      await copyToClipboard(socialPreview, clipboardHtml);
       const config = PLATFORM_CONFIGS[platform];
       addToast(
         `Copied to clipboard! Paste into ${config?.name || 'social media'} to see formatted content.`,
         'success'
       );
-    } catch {
-      addToast('Failed to copy to clipboard', 'error');
+    } catch (e) {
+      addToast(
+        e instanceof ClipboardUnavailableError
+          ? 'Clipboard API not available in your browser'
+          : 'Failed to copy to clipboard',
+        'error'
+      );
     } finally {
       setTimeout(() => setIsCopying(false), TIMING.COPY_FEEDBACK_DURATION);
     }
-  }, [socialPreview, addToast, platform]);
+  }, [socialPreview, clipboardHtml, addToast, platform]);
 
   const handleOpenSettings = () => setIsModalOpen(true);
 
@@ -178,7 +208,29 @@ export const Workspace: React.FC<WorkspaceProps> = ({ initialPlatform = 'default
           isCopying={isCopying}
           isLoadingHistory={isLoadingHistory}
         />
-        <div className="workspace-panes">
+        <div
+          className="mobile-view-switch"
+          role="group"
+          aria-label="Switch between editor and preview"
+        >
+          <button
+            type="button"
+            aria-pressed={mobileView === 'editor'}
+            className={`mobile-view-tab ${mobileView === 'editor' ? 'active' : ''}`}
+            onClick={() => setMobileView('editor')}
+          >
+            Editor
+          </button>
+          <button
+            type="button"
+            aria-pressed={mobileView === 'preview'}
+            className={`mobile-view-tab ${mobileView === 'preview' ? 'active' : ''}`}
+            onClick={() => setMobileView('preview')}
+          >
+            Preview
+          </button>
+        </div>
+        <div className={`workspace-panes mobile-${mobileView}`}>
           <div className="pane left-pane">
             <MarkdownEditor
               value={markdown}
@@ -195,16 +247,39 @@ export const Workspace: React.FC<WorkspaceProps> = ({ initialPlatform = 'default
                 </div>
               }
             >
-              <LivePreview contentText={socialPreview} platform={platform} />
+              <LivePreview
+                contentText={socialPreview}
+                platform={platform}
+                markdown={markdown}
+                formatStyle={formatStyle}
+              />
               <CharacterCounter text={socialPreview} platform={platform} />
             </ErrorBoundary>
           </div>
+        </div>
+        <div className="mobile-copy-bar">
+          <button
+            type="button"
+            className="mobile-copy-button"
+            onClick={handleCopy}
+            disabled={isCopying}
+            aria-busy={isCopying}
+            aria-label="Copy formatted content"
+          >
+            {isCopying ? (
+              <Loader2 size={18} aria-hidden="true" className="spin-animation" />
+            ) : (
+              <Copy size={18} aria-hidden="true" />
+            )}
+            {isCopying ? 'Copying...' : 'Copy formatted text'}
+          </button>
         </div>
         <StyleModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           formatStyle={formatStyle}
           setFormatStyle={setFormatStyle}
+          markdown={markdown}
         />
         <HistoryModal
           isOpen={isHistoryOpen}

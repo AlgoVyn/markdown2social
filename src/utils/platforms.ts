@@ -116,7 +116,7 @@ export const getPlatformConfig = (platform: string): PlatformConfig =>
  * - "Check out https://example.com/path!" -> matches "https://example.com/path" (excludes !)
  * - "Link: (https://example.com)" -> matches "https://example.com" (excludes ))
  */
-const URL_REGEX = /https?:\/\/[^\s\]>,;:!?'"]+(?:[^\s\]>,;:!?'"]*[^\s\]>,;:!?'"])?/g;
+const URL_REGEX = /https?:\/\/[^\s\]>,;:!?'"]+/g;
 
 /**
  * Calculates the character count of text, accounting for URL shortening.

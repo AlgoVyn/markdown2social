@@ -52,16 +52,3 @@ export function validateDrafts(data: unknown): ValidatedDraft[] | null {
 export function validateSingleDraft(data: unknown): ValidatedDraft | null {
   return validate(DraftSchema, data, 'Single draft validation');
 }
-
-/**
- * Sanitizes markdown content by removing potentially dangerous content
- * This is a lightweight sanitization - heavy sanitization is done by DOMPurify
- * @param markdown - Raw markdown string
- * @returns Sanitized markdown string
- */
-export function sanitizeMarkdown(markdown: string): string {
-  // Remove script tags and event handlers (including their values)
-  return markdown
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]*)*/gi, '');
-}

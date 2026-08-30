@@ -1,0 +1,98 @@
+/* Generic styles for markdown-rendered preview content. Platform components
+   provide their own font/colors via the shared text class; these rules only
+   structure block elements and neutral backgrounds that work on any card. */
+
+.formatted-content {
+  /* Block elements carry their own spacing; inherited pre-wrap would double it */
+  white-space: normal;
+}
+
+.formatted-content p {
+  margin: 0 0 0.6em 0;
+}
+
+.formatted-content p:last-child {
+  margin-bottom: 0;
+}
+
+.formatted-content strong,
+.formatted-content b {
+  font-weight: 700;
+}
+
+.formatted-content em,
+.formatted-content i {
+  font-style: italic;
+}
+
+.formatted-content ul,
+.formatted-content ol {
+  margin: 0.4em 0;
+  padding-left: 1.4em;
+}
+
+.formatted-content li {
+  margin: 0.2em 0;
+}
+
+.formatted-content h1,
+.formatted-content h2,
+.formatted-content h3,
+.formatted-content h4,
+.formatted-content h5,
+.formatted-content h6 {
+  font-size: 1em;
+  font-weight: 700;
+  margin: 0.5em 0;
+  line-height: 1.4;
+}
+
+.formatted-content blockquote {
+  margin: 0.4em 0;
+  padding-left: 0.9em;
+  border-left: 3px solid rgba(127, 127, 127, 0.45);
+  opacity: 0.85;
+}
+
+.formatted-content pre {
+  margin: 0.4em 0;
+  padding: 0.7em;
+  background: rgba(127, 127, 127, 0.14);
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+  line-height: 1.5;
+  counter-reset: code-line;
+}
+
+/* The parser emits one <span class="code-line"> per line joined without
+   separators, so each span must be its own block or the lines concatenate.
+   Numbers mirror the "N | code" output of the copied text. */
+.formatted-content .code-line {
+  display: block;
+  counter-increment: code-line;
+}
+
+.formatted-content .code-line::before {
+  content: counter(code-line);
+  display: inline-block;
+  min-width: 1.5em;
+  margin-right: 1em;
+  text-align: right;
+  color: var(--text-secondary);
+  user-select: none;
+}
+
+.formatted-content code {
+  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+  background: rgba(127, 127, 127, 0.14);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}
+
+.formatted-content pre code {
+  background: transparent;
+  padding: 0;
+}

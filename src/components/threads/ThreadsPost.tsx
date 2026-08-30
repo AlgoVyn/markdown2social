@@ -1,11 +1,15 @@
 import React from 'react';
+import { FormattedContent } from '../FormattedContent';
+import type { FormatStyle } from '../../utils/markdownParser';
 import './ThreadsPost.css';
 
 interface ThreadsPostProps {
   contentText: string;
+  markdown?: string;
+  formatStyle?: FormatStyle;
 }
 
-export const ThreadsPost: React.FC<ThreadsPostProps> = ({ contentText }) => {
+export const ThreadsPost: React.FC<ThreadsPostProps> = ({ contentText, markdown, formatStyle }) => {
   // Check if content exceeds Threads limit (500 chars)
   const charCount = contentText.length;
   const isOverLimit = charCount > 500;
@@ -25,11 +29,14 @@ export const ThreadsPost: React.FC<ThreadsPostProps> = ({ contentText }) => {
       </header>
 
       <div className="threads-content">
-        {contentText ? (
-          <p className="threads-text">{contentText}</p>
-        ) : (
-          <p className="threads-placeholder">Start a thread...</p>
-        )}
+        <FormattedContent
+          contentText={contentText}
+          markdown={markdown}
+          formatStyle={formatStyle}
+          textClassName="threads-text"
+          placeholder="Start a thread..."
+          placeholderClassName="threads-placeholder"
+        />
       </div>
 
       {isOverLimit && (

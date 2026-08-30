@@ -99,7 +99,14 @@
   white-space: nowrap;
 }
 
-/* Responsive: Stack panes vertically on mobile */
+/* Segmented editor/preview switch — narrow viewports only */
+.mobile-view-switch {
+  display: none;
+}
+
+.mobile-copy-bar {
+  display: none;
+}
 
 /* Responsive: Stack panes vertically on mobile */
 @media (max-width: 768px) {
@@ -107,23 +114,96 @@
     height: auto;
     min-height: 100vh;
     overflow: auto;
+    /* Keep the fixed copy bar from covering content */
+    padding-bottom: 76px;
+    box-sizing: border-box;
+  }
+
+  .mobile-view-switch {
+    display: flex;
+    gap: 4px;
+    margin: 0.75rem 0.75rem 0;
+    padding: 4px;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+  }
+
+  .mobile-view-tab {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--text-secondary);
+    font-weight: var(--font-semibold);
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition:
+      background-color var(--transition-fast),
+      color var(--transition-fast);
+  }
+
+  .mobile-view-tab.active {
+    background-color: var(--primary-color);
+    color: #fff;
   }
 
   .workspace-panes {
     flex-direction: column;
     height: auto;
-    min-height: calc(100vh - 80px);
+    min-height: calc(100vh - 190px);
     gap: 0.75rem;
     padding: 0.75rem;
   }
 
+  /* Show only the active pane; each gets the full screen */
   .pane {
-    flex: none;
-    /* Use min-height instead of fixed height for flexibility */
-    min-height: 300px;
-    /* Allow content to determine height but cap with max-height */
-    max-height: 60vh;
-    height: auto;
+    display: none;
+  }
+
+  .mobile-editor .left-pane,
+  .mobile-preview .right-pane {
+    display: flex;
+    flex: 1;
+    min-height: 60vh;
+    max-height: none;
+  }
+
+  /* Fixed bottom action bar with thumb-reachable copy */
+  .mobile-copy-bar {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--z-sticky);
+    padding: 0.625rem 0.75rem calc(0.625rem + env(safe-area-inset-bottom, 0px));
+    background-color: var(--surface-color);
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .mobile-copy-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-height: 44px;
+    border: none;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    color: #fff;
+    font-weight: var(--font-semibold);
+    font-size: var(--text-base);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .mobile-copy-button:disabled {
+    opacity: 0.7;
+    cursor: default;
   }
 
   .pane.right-pane .character-counter {
@@ -142,11 +222,14 @@
     gap: 0.5rem;
   }
 
-  .pane {
-    /* Further reduce min-height for very small screens */
-    min-height: 250px;
-    max-height: 70vh;
+  .mobile-editor .left-pane,
+  .mobile-preview .right-pane {
+    min-height: 55vh;
     border-radius: var(--radius-lg);
+  }
+
+  .mobile-view-switch {
+    margin: 0.5rem 0.5rem 0;
   }
 
   /* Ensure character counter is still sticky on small screens */

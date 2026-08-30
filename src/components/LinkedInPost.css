@@ -6,9 +6,16 @@
   max-width: 552px; /* Standard LinkedIn feed width */
   box-shadow: var(--shadow-platform);
   font-family:
-    -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', 'Fira Sans',
-    Ubuntu, Oxygen, 'Oxygen Sans', Cantarell, 'Droid Sans', 'Apple Color Emoji', 'Segoe UI Emoji',
-    'Segoe UI Emoji', 'Segoe UI Symbol', 'Lucida Grande', Helvetica, Arial, sans-serif;
+    'Inter',
+    -apple-system,
+    system-ui,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   transition:
     background-color var(--transition-normal),
     border-color var(--transition-normal);
@@ -76,11 +83,14 @@
 
 .post-content {
   padding: 0 16px 8px 16px;
+  font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
   font-size: 14px;
-  line-height: var(--leading-normal);
+  line-height: 1.7;
   color: var(--text-color);
   word-wrap: break-word;
   white-space: pre-wrap;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Text content styling */
@@ -88,9 +98,109 @@
   display: inline;
 }
 
-/* Links - shown as plain text with URL in LinkedIn */
+/* HTML-rendered content styling */
+.post-content > div {
+  font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-color);
+  word-wrap: break-word;
+  /* Block elements carry their own spacing; inherited pre-wrap would double it */
+  white-space: normal;
+}
+
+.post-content p {
+  margin: 0 0 0.6em 0;
+}
+
+.post-content p:last-child {
+  margin-bottom: 0;
+}
+
+.post-content strong,
+.post-content b {
+  font-weight: 700;
+}
+
+.post-content em,
+.post-content i {
+  font-style: italic;
+}
+
+.post-content ul,
+.post-content ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.post-content li {
+  margin: 0.25em 0;
+}
+
+.post-content h1,
+.post-content h2,
+.post-content h3,
+.post-content h4,
+.post-content h5,
+.post-content h6 {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0.5em 0;
+  line-height: 1.5;
+}
+
+.post-content blockquote {
+  margin: 0.5em 0;
+  padding-left: 1em;
+  border-left: 3px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.post-content pre {
+  margin: 0.5em 0;
+  padding: 0.75em;
+  background: var(--bg-color);
+  border-radius: 6px;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  counter-reset: code-line;
+}
+
+.post-content code {
+  font-family: 'JetBrains Mono', Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  background: var(--bg-color);
+  padding: 0.15em 0.3em;
+  border-radius: 3px;
+}
+
+.post-content pre code {
+  background: transparent;
+  padding: 0;
+}
+
+/* Line numbers, mirroring the "N | code" output of the copied text */
+.post-content .code-line {
+  display: block;
+  counter-increment: code-line;
+}
+
+.post-content .code-line::before {
+  content: counter(code-line);
+  display: inline-block;
+  min-width: 1.5em;
+  margin-right: 1em;
+  text-align: right;
+  color: var(--text-secondary);
+  user-select: none;
+}
+
+/* Links - LinkedIn's own blue regardless of app theme, since the copied post
+   renders links with the platform's color */
 .post-content a {
-  color: var(--primary-color);
+  color: #0a66c2;
   text-decoration: none;
   font-weight: var(--font-semibold);
 }
